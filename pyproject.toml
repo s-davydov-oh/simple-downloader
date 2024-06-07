@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "simple-downloader"
+version = "0.1.0"
+description = ""
+authors = ["Sergey <s.davydov.oh@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+click = "^8.1.7"
+yarl = "^1.9.4"
+requests = "^2.32.3"
+tenacity = "^8.3.0"
+bs4 = "^0.0.2"
+lxml = "^5.2.2"
+tqdm = "^4.66.4"
+fake-useragent = "^1.5.1"
+
+[tool.poetry.group.dev.dependencies]
+pyright = "^1.1.366"
+black = "^24.4.2"
+ruff = "^0.4.8"
+pre-commit = "^3.7.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 100
+
+[tool.black]
+line-length = 100
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"

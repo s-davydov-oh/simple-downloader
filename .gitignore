@@ -1,0 +1,10 @@
+# IDE folders.
+.idea
+
+# not project files.
+__pycache__
+.venv
+
+# project files.
+saves
+debug.log
