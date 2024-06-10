@@ -4,15 +4,17 @@ from time import sleep
 from typing import Any, Literal
 
 from fake_useragent import UserAgent
-import requests
+from requests import Response, Session
+from requests.exceptions import ConnectionError, HTTPError, Timeout
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_incrementing
 from yarl import URL
 
-from simple_downloader.config import DELAY, MAX_REDIRECTS, TIMEOUT
+from simple_downloader.config import DELAY, MAX_REDIRECTS, RETRY_STRATEGY, TIMEOUT, TOTAL_RETRIES
 from simple_downloader.core.exceptions import InvalidContentTypeError
 
 logger = getLogger(__name__)
 
-SESSION = requests.Session()
+SESSION = Session()
 SESSION.max_redirects = MAX_REDIRECTS
 SESSION.headers.update({"user-agent": UserAgent().random})
 logger.debug("Session is open".upper())
@@ -25,7 +27,7 @@ def requester(
     delay: float | tuple[float, float] | None = DELAY,
     timeout: tuple[float, float] = TIMEOUT,
     **kwargs: Any,
-) -> requests.Response:
+) -> Response:
     match delay:
         case float():
             sleep_time = delay
@@ -37,7 +39,13 @@ def requester(
     logger.debug("Delay before request %d second", sleep_time)
     sleep(sleep_time)
 
-    def make_request() -> requests.Response:
+    @retry(
+        reraise=True,
+        stop=stop_after_attempt(TOTAL_RETRIES),
+        wait=wait_incrementing(**RETRY_STRATEGY),
+        retry=retry_if_exception_type((ConnectionError, HTTPError, Timeout)),
+    )
+    def make_request() -> Response:
         response = SESSION.request(method, str(url), timeout=timeout, **kwargs)
         response.raise_for_status()
 
