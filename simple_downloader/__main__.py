@@ -1,5 +1,10 @@
+from pathlib import Path
 import sys
 
+import click
+from yarl import URL
+
+from simple_downloader.config import BASE_DIR, SAVE_FOLDER_NAME
 from simple_downloader.core.logging_settings import logging
 from simple_downloader.handlers.requester import SESSION
 
@@ -7,7 +12,15 @@ from simple_downloader.handlers.requester import SESSION
 logger = logging.getLogger("simple_downloader")
 
 
-def main() -> None: ...
+@click.command()
+@click.argument("url", type=URL)
+@click.option(
+    "--path",  # if the "path" contains "\s", it must be framed with quotes.
+    "-p",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=BASE_DIR.joinpath(SAVE_FOLDER_NAME),
+)
+def main(url: URL, path: Path) -> None: ...
 
 
 if __name__ == "__main__":
