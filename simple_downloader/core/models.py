@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Iterator
 
@@ -26,3 +27,11 @@ class MediaFile:
     filename: Filename
     url: URL
     stream_url: URL
+
+
+@dataclass
+class Crawler(ABC):
+    url_origin: URL
+
+    @abstractmethod
+    def scrape_media(self, url: URL) -> MediaAlbum | MediaFile: ...
