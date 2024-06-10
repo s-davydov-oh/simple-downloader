@@ -1,9 +1,8 @@
-import logging.config
 import sys
 
-from simple_downloader.core.logging_settings import LOGGING
+from simple_downloader.core.logging_settings import logging
 
-logging.config.dictConfig(LOGGING)
+
 logger = logging.getLogger("simple_downloader")
 
 

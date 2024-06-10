@@ -1,15 +1,15 @@
-from logging import Filter, LogRecord
+import logging.config
 
 from simple_downloader.config import BASE_DIR
 
 
-class ConsoleFilter(Filter):
-    def filter(self, record: LogRecord) -> bool:
+class ConsoleFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
         return record.levelname == "INFO"
 
 
-class FileFilter(Filter):
-    def filter(self, record: LogRecord) -> bool:
+class FileFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
         return record.levelname != "INFO"
 
 
@@ -57,3 +57,5 @@ LOGGING = {
         },
     },
 }
+
+logging.config.dictConfig(LOGGING)
