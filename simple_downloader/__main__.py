@@ -8,7 +8,7 @@ from simple_downloader.config import BASE_DIR, SAVE_FOLDER_NAME
 from simple_downloader.core.logging_settings import logging
 from simple_downloader.handlers.requester import SESSION
 
-
+# otherwise logging code in "requester" is executed before the logger creation in "__main__.py".
 logger = logging.getLogger("simple_downloader")
 
 
