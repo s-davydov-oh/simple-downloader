@@ -29,9 +29,9 @@ class MediaFile:
     stream_url: URL
 
 
-@dataclass
-class Crawler(ABC):
-    url_origin: URL
+class Crawler(ABC):  # if you use @dataclass, an "unexpected argument" for an obj attribute.
+    def __init__(self, url_origin: URL) -> None:
+        self.url_origin = url_origin
 
     @abstractmethod
     def scrape_media(self, url: URL) -> MediaAlbum | MediaFile: ...
