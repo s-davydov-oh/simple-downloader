@@ -16,22 +16,22 @@ class Filename:
 
 @dataclass(frozen=True, slots=True)
 class MediaAlbum:
-    name: str
+    title: str
     url: URL
     file_urls: Iterator[URL]
 
 
 @dataclass(frozen=True, slots=True)
 class MediaFile:
-    name: str
+    title: str
     filename: Filename
     url: URL
     stream_url: URL
 
 
 class Crawler(ABC):  # if you use @dataclass, an "unexpected argument" for an obj attribute.
-    def __init__(self, url_origin: URL) -> None:
-        self.url_origin = url_origin
+    def __init__(self, base_url: URL) -> None:
+        self.base_url = base_url
 
     @abstractmethod
     def scrape_media(self, url: URL) -> MediaAlbum | MediaFile: ...
