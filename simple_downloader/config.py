@@ -8,3 +8,4 @@ TIMEOUT: tuple[float, float] = (3.03, 42)  # connect and read timeout.
 TOTAL_RETRIES = 5
 RETRY_STRATEGY = {"multiplier": 10, "min": 10, "max": 160}  # (2 ^ attempt - 1) * mult.
 CHUNK_MULTIPLIER = 8
+SUPPORTED_EXTENSIONS = frozenset({})

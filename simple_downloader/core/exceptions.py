@@ -2,5 +2,5 @@ class CrawlerNotFoundError(Exception):
     """No crawler was found for the hosting"""
 
 
-class InvalidContentTypeError(Exception):
-    """The server returned an empty “content-type”"""
+class ExtensionNotSupported(Exception):
+    """The extension is not in the list of "supported extensions"."""
