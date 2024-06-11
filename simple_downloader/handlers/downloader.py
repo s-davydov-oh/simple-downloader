@@ -25,6 +25,6 @@ def download(
             with bf_out:
                 for chunk in stream.iter_content(chunk_size):
                     bf_out.write(chunk)
-            logger.debug("Downloaded %s", file.name)
+            logger.debug("Downloaded %s", file.title)
 
     return save()
