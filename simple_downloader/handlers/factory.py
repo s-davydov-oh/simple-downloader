@@ -4,7 +4,7 @@ from re import search
 from yarl import URL
 
 from simple_downloader import crawlers
-from simple_downloader.core.exceptions import CrawlerNotFoundError
+from simple_downloader.core.exceptions import CrawlerNotFound
 from simple_downloader.core.models import Crawler
 
 
@@ -23,6 +23,6 @@ def get_crawler(url: URL) -> Crawler:
                     logger.debug("Received <%s> crawler for %s", crawler.__module__, url)
                     return crawler
 
-        raise CrawlerNotFoundError(f"Crawler not found for {url}")
+        raise CrawlerNotFound(f"Crawler not found for {url}")
 
     return choice_crawler()(url.origin())
