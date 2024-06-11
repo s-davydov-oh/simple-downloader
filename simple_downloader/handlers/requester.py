@@ -10,7 +10,7 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 from yarl import URL
 
 from simple_downloader.config import DELAY, MAX_REDIRECTS, RETRY_STRATEGY, TIMEOUT, TOTAL_RETRIES
-from simple_downloader.core.exceptions import InvalidContentTypeError
+from simple_downloader.core.exceptions import InvalidContentType
 from simple_downloader.core.logs import log_retry_request, log_request
 
 logger = getLogger(__name__)
@@ -54,7 +54,7 @@ def requester(
 
         if not response.headers.get("content-type"):
             logger.debug("HTTP response headers %s", response.headers)
-            raise InvalidContentTypeError("Server returned an unexpected content-type")
+            raise InvalidContentType("Server returned an unexpected content-type")
 
         return response
 
