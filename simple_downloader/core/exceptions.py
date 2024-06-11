@@ -12,3 +12,11 @@ class ExtensionNotSupported(Exception):
 
 class InvalidContentType(Exception):
     """The server returned an empty "content-type"."""
+
+
+class InvalidMediaType(Exception):
+    """Crawler can't identify the media type."""
+
+
+class ParsingError(Exception):
+    """Probably a parsing problem with the Crawler."""
