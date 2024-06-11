@@ -7,6 +7,7 @@ from simple_downloader import crawlers
 from simple_downloader.core.exceptions import CrawlerNotFoundError
 from simple_downloader.core.models import Crawler
 
+
 logger = getLogger(__name__)
 
 HOST_MAPPING = {

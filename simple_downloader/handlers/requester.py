@@ -13,6 +13,7 @@ from simple_downloader.config import DELAY, MAX_REDIRECTS, RETRY_STRATEGY, TIMEO
 from simple_downloader.core.exceptions import InvalidContentType
 from simple_downloader.core.logs import log_retry_request, log_request
 
+
 logger = getLogger(__name__)
 
 SESSION = Session()

@@ -5,6 +5,7 @@ from simple_downloader.config import CHUNK_MULTIPLIER
 from simple_downloader.core.models import MediaFile
 from simple_downloader.handlers.requester import requester
 
+
 logger = getLogger(__name__)
 
 

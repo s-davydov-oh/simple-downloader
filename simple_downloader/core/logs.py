@@ -4,6 +4,7 @@ from tenacity import RetryCallState
 
 from simple_downloader.core.utils import get_url_from_args
 
+
 logger = getLogger(__name__)
 
 
