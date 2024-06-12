@@ -49,7 +49,7 @@ def requester(
         before=log_request,
         before_sleep=log_retry_request,
     )
-    def make_request() -> Response:
+    def make_request(url: URL) -> Response:
         response = SESSION.request(method, str(url), timeout=timeout, **kwargs)
         response.raise_for_status()
 
@@ -59,4 +59,4 @@ def requester(
 
         return response
 
-    return make_request()
+    return make_request(url)
