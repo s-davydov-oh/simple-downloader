@@ -10,7 +10,7 @@ class ExtensionNotSupported(Exception):
     """The extension is not in the list of "supported extensions"."""
 
 
-class InvalidContentType(Exception):
+class EmptyContentType(Exception):
     """The server returned an empty "content-type"."""
 
 
