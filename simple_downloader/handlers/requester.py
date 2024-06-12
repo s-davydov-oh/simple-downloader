@@ -38,7 +38,7 @@ def requester(
         case _:
             sleep_time = 0
 
-    logger.debug("Delay before request %d second", sleep_time)
+    logger.debug("Delay before request %f second", sleep_time)
     sleep(sleep_time)
 
     @retry(
