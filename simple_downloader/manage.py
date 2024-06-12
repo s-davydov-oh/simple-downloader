@@ -67,6 +67,7 @@ class Manager:
     save_path: Path
     crawler: Crawler = field(init=False)
 
+    @error_handling_wrapper
     def startup(self, task: URL) -> None:
         self.crawler = factory.get_crawler(task)
 
@@ -80,6 +81,7 @@ class Manager:
             case _ as unreachable:
                 assert_never(unreachable)
 
+    @error_handling_wrapper
     def _download(self, item: URL | MediaFile) -> None:
         file: MediaFile  # separate var because otherwise "pyright" says "reportRedeclaration".
         match item:
