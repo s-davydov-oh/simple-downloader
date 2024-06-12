@@ -6,7 +6,7 @@ from yarl import URL
 
 from simple_downloader.config import DEFAULT_ALBUM_NAME
 from simple_downloader.core.exceptions import ExtensionNotFound
-from simple_downloader.core.models import Extension, Filename
+from simple_downloader.core.models import Extension, Filename, MediaAlbum, MediaFile
 
 
 logger = getLogger(__name__)
@@ -33,6 +33,8 @@ def get_url_from_args(arguments: tuple) -> URL | str:
     for arg in arguments:
         if isinstance(arg, URL):
             return arg
+        if isinstance(arg, MediaAlbum | MediaFile):
+            return arg.url
 
     return "<unknown URL>"
 

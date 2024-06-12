@@ -1,18 +1,65 @@
 from dataclasses import dataclass, field
+from functools import wraps
+from http import HTTPStatus
 from logging import getLogger
 from pathlib import Path
-from typing import ParamSpec, assert_never
+from typing import Any, Callable, ParamSpec, assert_never
 
+from requests import ConnectionError, HTTPError, RequestException, TooManyRedirects, Timeout
 from yarl import URL
 
+from simple_downloader.config import MAX_REDIRECTS, TIMEOUT
+from simple_downloader.core import exceptions as excs
 from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
-from simple_downloader.core.utils import get_updated_parent_path
+from simple_downloader.core.utils import get_updated_parent_path, get_url_from_args
 from simple_downloader.handlers import downloader, factory
 
 
 P = ParamSpec("P")
 
 logger = getLogger(__name__)
+
+
+def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
+    @wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Any:
+        url = get_url_from_args(args)
+
+        try:
+            return func(*args, **kwargs)
+
+        except HTTPError as e:
+            logger.debug(e)
+            code = e.response.status_code
+            logger.info("[-] %s (%s): %s", HTTPStatus(code).phrase, code, url)
+        except TooManyRedirects as e:
+            logger.debug(e)
+            logger.info("[-] Too Many Redirects (max %s): %s", MAX_REDIRECTS, url)
+        except Timeout as e:
+            logger.debug(e)
+            logger.info("[-] Connect and read Timeout %s: %s", TIMEOUT, url)
+        except (ConnectionError, excs.InvalidContentType) as e:
+            logger.debug(e)
+            logger.info("[-] Server Error: %s", url)
+        except RequestException as e:
+            logger.warning(e, exc_info=True)
+            logger.info("[-] Download Error: %s", url)
+
+        except excs.CrawlerNotFound as e:
+            logger.debug(e)
+            logger.info("[-] Hosting isn't supported: %s", url)
+        except excs.ExtensionNotFound as e:
+            logger.debug(e)
+            logger.info("[-] File doesn't have an extension: %s", url)
+        except excs.ExtensionNotSupported as e:
+            logger.debug(e)
+            logger.info("[-] File extension isn't supported: %s", url)
+
+        except IOError as e:
+            logger.debug(e)
+            logger.info("[-] Save Error: %s", url)
+
+    return wrapper
 
 
 @dataclass
