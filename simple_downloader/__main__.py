@@ -8,6 +8,7 @@ from simple_downloader.config import BASE_DIR, SAVE_FOLDER_NAME
 from simple_downloader.core.logging_settings import logging
 from simple_downloader.core.utils import get_updated_parent_path
 from simple_downloader.handlers.requester import SESSION
+from simple_downloader.manage import Manager
 
 
 # otherwise logging code in "requester" is executed before the logger creation in "__main__.py".
@@ -22,7 +23,9 @@ logger = logging.getLogger("simple_downloader")
     type=click.Path(exists=True, file_okay=False, path_type=Path),
     default=get_updated_parent_path(BASE_DIR.joinpath(SAVE_FOLDER_NAME)),
 )
-def main(url: URL, path: Path) -> None: ...
+def main(url: URL, path: Path) -> None:
+    manager = Manager(path)
+    manager.startup(url)
 
 
 if __name__ == "__main__":
