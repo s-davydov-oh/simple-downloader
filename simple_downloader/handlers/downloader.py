@@ -17,15 +17,10 @@ def download(
     stream = requester(file.stream_url, stream=True)
 
     def save() -> None:
-        try:
-            bf_out = save_path.joinpath(str(file.filename)).open("bw")
-        except IOError as e:
-            logger.debug(e)
-        else:
+        with save_path.joinpath(str(file.filename)).open("bw") as bf_out:
             logger.debug("Downloading %s", file.url)
-            with bf_out:
-                for chunk in stream.iter_content(chunk_size):
-                    bf_out.write(chunk)
+            for chunk in stream.iter_content(chunk_size):
+                bf_out.write(chunk)
             logger.debug("Downloaded %s", file.title)
 
     return save()
