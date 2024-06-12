@@ -23,7 +23,7 @@ class Cyberdrop(Crawler):
                     file_urls=self._parse_file_urls(soup),
                 )
             case "f":
-                api = self.BASE_API.with_path(url.path[1:])
+                api = self.BASE_API.joinpath(url.path[1:])
                 json = requester(api).json()
                 return MediaFile(
                     title=json["name"],
