@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+
+
 class CrawlerNotFound(Exception):
     """No crawler was found for the hosting."""
 
@@ -14,8 +17,11 @@ class EmptyContentType(Exception):
     """The server returned an empty "content-type"."""
 
 
+@dataclass
 class InvalidMediaType(Exception):
     """Crawler can't identify the media type."""
+
+    media_type: str
 
 
 class ParsingError(Exception):

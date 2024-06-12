@@ -32,7 +32,7 @@ class Cyberdrop(Crawler):
                     stream_url=json["url"],
                 )
             case _:
-                raise InvalidMediaType
+                raise InvalidMediaType(media_type)
 
     @staticmethod
     def _parse_title(soup: BeautifulSoup) -> str:
