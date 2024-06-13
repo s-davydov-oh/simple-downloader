@@ -14,7 +14,7 @@ class ExtensionNotFound(Exception):
 
     def __init__(self, title: str) -> None:
         self.title = title
-        super().__init__(f"File \"{self.title} doesn't have an extension")
+        super().__init__(f'"File "{self.title}" doesn\'t have an extension"')
 
 
 class ExtensionNotSupported(Exception):
