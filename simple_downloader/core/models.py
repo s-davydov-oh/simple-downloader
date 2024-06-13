@@ -14,7 +14,7 @@ class Extension:
 
     def __post_init__(self) -> None:
         if self.name_with_dot.lower() not in SUPPORTED_EXTENSIONS:
-            raise ExtensionNotSupported(f'File extension "{self.name_with_dot}" isn\'t supported')
+            raise ExtensionNotSupported(self.name_with_dot)
 
     def __str__(self) -> str:
         return self.name_with_dot

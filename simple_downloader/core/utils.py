@@ -45,7 +45,7 @@ def parse_filename(name: str) -> Filename:
         stem, ext = match.groups()
         return Filename(sanitize(stem), Extension(ext))
 
-    raise ExtensionNotFound(f'File "{name}" doesn\'t have an extension')
+    raise ExtensionNotFound(name)
 
 
 def sanitize(name: str, separator: str = "_") -> str:

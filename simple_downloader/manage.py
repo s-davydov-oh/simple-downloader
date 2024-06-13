@@ -38,7 +38,7 @@ def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
         except Timeout as e:
             logger.debug(e)
             logger.info("[-] Connect and read Timeout %s: %s", TIMEOUT, url)
-        except (ConnectionError, excs.InvalidContentType) as e:
+        except (ConnectionError, excs.EmptyContentType) as e:
             logger.debug(e)
             logger.info("[-] Server Error: %s", url)
         except RequestException as e:

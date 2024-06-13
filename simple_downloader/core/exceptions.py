@@ -1,27 +1,44 @@
-from dataclasses import dataclass
+from yarl import URL
 
 
 class CrawlerNotFound(Exception):
     """No crawler was found for the hosting."""
 
+    def __init__(self, url: URL) -> None:
+        self.url = url
+        super().__init__(f"Crawler not found for {self.url}")
+
 
 class ExtensionNotFound(Exception):
     """The file doesn't have an extension."""
+
+    def __init__(self, title: str) -> None:
+        self.title = title
+        super().__init__(f"File \"{self.title} doesn't have an extension")
 
 
 class ExtensionNotSupported(Exception):
     """The extension is not in the list of "supported extensions"."""
 
+    def __init__(self, extension: str) -> None:
+        self.extension = extension
+        super().__init__(f'File extension "{self.extension}" isn\'t supported')
+
 
 class EmptyContentType(Exception):
     """The server returned an empty "content-type"."""
 
+    def __init__(self) -> None:
+        super().__init__("Server returned an unexpected content-type")
 
-@dataclass
+
 class InvalidMediaType(Exception):
     """Crawler can't identify the media type."""
 
-    media_type: str
+    def __init__(self, media_type: str, url: URL) -> None:
+        self.media_type = media_type
+        self.url = url
+        super().__init__(f'Cannot identify media type for "{self.media_type}": {self.url}')
 
 
 class ParsingError(Exception):

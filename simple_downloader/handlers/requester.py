@@ -55,7 +55,7 @@ def requester(
 
         if not response.headers.get("content-type"):
             logger.debug("HTTP response headers %s", response.headers)
-            raise EmptyContentType("Server returned an unexpected content-type")
+            raise EmptyContentType
 
         return response
 

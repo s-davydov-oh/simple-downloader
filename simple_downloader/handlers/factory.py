@@ -23,6 +23,6 @@ def get_crawler(url: URL) -> Crawler:
                     logger.debug("Received <%s> crawler for %s", crawler.__module__, url)
                     return crawler
 
-        raise CrawlerNotFound(f"Crawler not found for {url}")
+        raise CrawlerNotFound(url)
 
     return choice_crawler()(url.origin())
