@@ -48,15 +48,15 @@ class ParsingError(Exception):
         super().__init__(message)
 
 
-class TitleParsingError(ParsingError):
-    """Probably no <h1> tag found."""
-
-    def __init__(self) -> None:
-        super().__init__("<h1> tag not found")
-
-
 class FileTableNotFound(ParsingError):
     """The file table in an album was not found."""
 
     def __init__(self) -> None:
         super().__init__("File table not found")
+
+
+class TitleNotFound(ParsingError):
+    """Probably no <h1> tag found."""
+
+    def __init__(self) -> None:
+        super().__init__("<h1> tag not found")

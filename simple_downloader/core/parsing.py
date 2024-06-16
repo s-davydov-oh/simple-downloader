@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup, NavigableString, Tag
 
-from simple_downloader.core.exceptions import ParsingError, TitleParsingError
+from simple_downloader.core.exceptions import ParsingError, TitleNotFound
 from simple_downloader.core.utils import decode_cloudflare_email_protection
 
 
@@ -9,7 +9,7 @@ def parse_title(soup: BeautifulSoup) -> str:
 
     h1_tag: Tag | None = soup.h1
     if h1_tag is None:
-        raise TitleParsingError
+        raise TitleNotFound
 
     if _has_cf_protection(h1_tag):
         return _parse_h1_with_cf_protection(h1_tag)
