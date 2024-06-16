@@ -5,6 +5,7 @@ from yarl import URL
 
 from simple_downloader.core.exceptions import InvalidMediaType, ParsingError
 from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
+from simple_downloader.core.parsing import parse_title
 from simple_downloader.core.utils import parse_filename
 from simple_downloader.handlers.requester import requester
 
@@ -18,7 +19,7 @@ class Cyberdrop(Crawler):
             case "a":
                 soup = BeautifulSoup(requester(url).text, "lxml")
                 return MediaAlbum(
-                    title=self._parse_title(soup),
+                    title=parse_title(soup),
                     url=url,
                     file_urls=self._parse_file_urls(soup),
                 )
@@ -33,14 +34,6 @@ class Cyberdrop(Crawler):
                 )
             case _:
                 raise InvalidMediaType(media_type, url)
-
-    @staticmethod
-    def _parse_title(soup: BeautifulSoup) -> str:
-        h1_tag = soup.select_one("h1")
-        if h1_tag is None:
-            raise ParsingError("<h1> tag not found")
-
-        return h1_tag.getText(strip=True)
 
     def _parse_file_urls(self, soup: BeautifulSoup) -> Iterator[URL]:
         a_tags = soup.select("#table .image")
