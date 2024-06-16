@@ -53,3 +53,14 @@ def sanitize(name: str, separator: str = "_") -> str:
 
     name = "".join(separator if char in FORBIDDEN else char for char in name)
     return name.rstrip(".").strip()
+
+
+def decode_cloudflare_email_protection(encoded_data: str) -> str:
+    """
+    Cloudflare email protection decoding algorithm.
+    Source https://usamaejaz.com/cloudflare-email-decoding.
+    """
+
+    r = int(encoded_data[:2], 16)
+    chars = [chr(int(encoded_data[i : i + 2], 16) ^ r) for i in range(2, len(encoded_data), 2)]
+    return "".join(chars)
