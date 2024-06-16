@@ -43,3 +43,13 @@ class InvalidMediaType(Exception):
 
 class ParsingError(Exception):
     """Probably a parsing problem with the Crawler."""
+
+    def __init__(self, message: str = "Unknown parsing error") -> None:
+        super().__init__(message)
+
+
+class TitleParsingError(ParsingError):
+    """Probably no <h1> tag found."""
+
+    def __init__(self) -> None:
+        super().__init__("<h1> tag not found")
