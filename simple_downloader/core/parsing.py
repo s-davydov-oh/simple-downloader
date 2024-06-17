@@ -1,6 +1,9 @@
-from bs4 import BeautifulSoup, NavigableString, Tag
+from re import compile
 
-from simple_downloader.core.exceptions import ParsingError, TitleNotFound
+from bs4 import BeautifulSoup, NavigableString, Tag
+from yarl import URL
+
+from simple_downloader.core.exceptions import DownloadHyperlinkNotFound, ParsingError, TitleNotFound
 from simple_downloader.core.utils import decode_cloudflare_email_protection
 
 
@@ -34,3 +37,13 @@ def _parse_h1_with_cf_protection(tag: Tag) -> str:
             return f"{html_string.get_text(strip=True)}{decode(a_tag_with_cf_protection)}"
         case _:
             raise ParsingError
+
+
+def parse_download_hyperlink(soup: BeautifulSoup) -> URL:
+    """Return the URL from a hyperlink named "Download"."""
+
+    a_tag_with_hyperlink = soup.find("a", href=True, string=compile(r"(?i)download"))
+    if a_tag_with_hyperlink is None:
+        raise DownloadHyperlinkNotFound
+
+    return URL(a_tag_with_hyperlink["href"])  # type: ignore[reportArgumentType]

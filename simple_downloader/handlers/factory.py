@@ -12,6 +12,7 @@ logger = getLogger(__name__)
 
 HOST_MAPPING = {
     "cyberdrop": crawlers.Cyberdrop,
+    "bunkr": crawlers.Bunkr,
 }
 
 

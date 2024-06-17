@@ -60,3 +60,10 @@ class TitleNotFound(ParsingError):
 
     def __init__(self) -> None:
         super().__init__("<h1> tag not found")
+
+
+class DownloadHyperlinkNotFound(ParsingError):
+    """The hyperlink named "Download" wasn't found."""
+
+    def __init__(self) -> None:
+        super().__init__('The hyperlink named "Download" wasn\'t found')
