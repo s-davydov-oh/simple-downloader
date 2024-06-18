@@ -3,8 +3,12 @@ from yarl import URL
 
 from simple_downloader.core.exceptions import InvalidMediaType
 from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
-from simple_downloader.core.parsing import parse_download_hyperlink, parse_file_urls, parse_title
-from simple_downloader.core.utils import parse_filename
+from simple_downloader.core.parsing import (
+    parse_download_hyperlink,
+    parse_file_urls,
+    parse_filename,
+    parse_title,
+)
 from simple_downloader.handlers.requester import requester
 
 

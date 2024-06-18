@@ -6,11 +6,25 @@ from yarl import URL
 
 from simple_downloader.core.exceptions import (
     DownloadHyperlinkNotFound,
+    ExtensionNotFound,
     ParsingError,
     FileTableNotFound,
     TitleNotFound,
 )
-from simple_downloader.core.utils import decode_cloudflare_email_protection
+from simple_downloader.core.models import Extension, Filename
+from simple_downloader.core.utils import decode_cloudflare_email_protection, sanitize
+
+
+FILENAME = compile(r"(.*)(\.\w+$)")
+
+
+def parse_filename(name: str) -> Filename:
+    match = FILENAME.search(name)
+    if match is not None:
+        stem, ext = match.groups()
+        return Filename(sanitize(stem), Extension(ext))
+
+    raise ExtensionNotFound(name)
 
 
 def parse_title(soup: BeautifulSoup) -> str:

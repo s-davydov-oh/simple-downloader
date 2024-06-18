@@ -1,17 +1,14 @@
 from logging import getLogger
 from pathlib import Path
-from re import compile
 
 from yarl import URL
 
 from simple_downloader.config import DEFAULT_ALBUM_NAME
-from simple_downloader.core.exceptions import ExtensionNotFound
-from simple_downloader.core.models import Extension, Filename, MediaAlbum, MediaFile
+from simple_downloader.core.models import MediaAlbum, MediaFile
 
 
 logger = getLogger(__name__)
 
-FILENAME = compile(r"(.*)(\.\w+$)")
 FORBIDDEN = '/<>:"\\|?*'  # https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
 
 
@@ -37,15 +34,6 @@ def get_url_from_args(arguments: tuple) -> URL | str:
             return arg.url
 
     return "<unknown URL>"
-
-
-def parse_filename(name: str) -> Filename:
-    match = FILENAME.search(name)
-    if match is not None:
-        stem, ext = match.groups()
-        return Filename(sanitize(stem), Extension(ext))
-
-    raise ExtensionNotFound(name)
 
 
 def sanitize(name: str, separator: str = "_") -> str:
