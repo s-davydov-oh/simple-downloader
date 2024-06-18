@@ -31,6 +31,13 @@ def _has_cloudflare_protection(tag: Tag) -> bool:
 
 
 def _parse_title_from_h1_with_cloudflare_protection(tag: Tag) -> str:
+    """
+    Cloudflare provides an obfuscation mechanism for email addresses, which is sometimes applied to filenames as well.
+
+    The filename is either fully encrypted if the entire name falls under an email regular expression,
+    or split into two parts, where the first will be a normal string and the second will be encrypted.
+    """
+
     match tag.next:
         case Tag() as tag_with_protection:
             return _decode(tag_with_protection)
@@ -61,6 +68,8 @@ def parse_file_urls(
     file_table_selector: str,
     base_url: Optional[URL] = None,
 ) -> Iterator[URL]:
+    """Parses file URLs from the album page using selectors from SoupSieve built into BeautifulSoup."""
+
     tags_with_file_urls = soup.select(file_table_selector)
     if not tags_with_file_urls:
         raise FileTableNotFound
