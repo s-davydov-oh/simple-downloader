@@ -1,11 +1,9 @@
-from typing import Iterator
-
 from bs4 import BeautifulSoup
 from yarl import URL
 
-from simple_downloader.core.exceptions import FileTableNotFound, InvalidMediaType
+from simple_downloader.core.exceptions import InvalidMediaType
 from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
-from simple_downloader.core.parsing import parse_title
+from simple_downloader.core.parsing import parse_file_urls, parse_title
 from simple_downloader.core.utils import parse_filename
 from simple_downloader.handlers.requester import requester
 
@@ -21,7 +19,7 @@ class Cyberdrop(Crawler):
                 return MediaAlbum(
                     title=parse_title(soup),
                     url=url,
-                    file_urls=self._parse_file_urls(soup),
+                    file_urls=parse_file_urls(soup, "#table .image", self.base_url),
                 )
             case "f":
                 api = self.BASE_API.joinpath(url.path[1:])
@@ -34,11 +32,3 @@ class Cyberdrop(Crawler):
                 )
             case _:
                 raise InvalidMediaType(media_type, url)
-
-    def _parse_file_urls(self, soup: BeautifulSoup) -> Iterator[URL]:
-        a_tags = soup.select("#table .image")
-        if not a_tags:
-            raise FileTableNotFound
-
-        for a_tag in a_tags:
-            yield URL(self.base_url.with_path(a_tag["href"]))  # type: ignore[reportArgumentType]
