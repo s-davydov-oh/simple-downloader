@@ -18,6 +18,10 @@ from simple_downloader.core.utils import decode_cloudflare_email_protection, san
 FILENAME = compile(r"(.*)(\.\w+$)")
 
 
+def get_soup(html_page: str, parser: str = "lxml") -> BeautifulSoup:
+    return BeautifulSoup(html_page, parser)
+
+
 def parse_filename(name: str) -> Filename:
     match = FILENAME.search(name)
     if match is not None:

@@ -1,9 +1,8 @@
-from bs4 import BeautifulSoup
 from yarl import URL
 
 from simple_downloader.core.exceptions import InvalidMediaType
 from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
-from simple_downloader.core.parsing import parse_file_urls, parse_filename, parse_title
+from simple_downloader.core.parsing import get_soup, parse_file_urls, parse_filename, parse_title
 from simple_downloader.handlers.requester import requester
 
 
@@ -14,7 +13,7 @@ class Cyberdrop(Crawler):
         media_type = url.parts[1]
         match media_type:
             case "a":
-                soup = BeautifulSoup(requester(url).text, "lxml")
+                soup = get_soup(requester(url).text)
                 return MediaAlbum(
                     title=parse_title(soup),
                     url=url,

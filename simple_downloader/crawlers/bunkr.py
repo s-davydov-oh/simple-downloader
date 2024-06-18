@@ -4,6 +4,7 @@ from yarl import URL
 from simple_downloader.core.exceptions import InvalidMediaType
 from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
 from simple_downloader.core.parsing import (
+    get_soup,
     parse_download_hyperlink,
     parse_file_urls,
     parse_filename,
@@ -14,7 +15,7 @@ from simple_downloader.handlers.requester import requester
 
 class Bunkr(Crawler):
     def scrape_media(self, url: URL) -> MediaAlbum | MediaFile:
-        soup = BeautifulSoup(requester(url).text, "lxml")
+        soup = get_soup(requester(url).text)
         title = parse_title(soup)
         media_type = url.parts[1]
         match media_type:
@@ -37,5 +38,5 @@ class Bunkr(Crawler):
     @staticmethod
     def _parse_stream_url(soup: BeautifulSoup) -> URL:
         fileserver_url = parse_download_hyperlink(soup)
-        soup = BeautifulSoup(requester(fileserver_url).text, "lxml")
+        soup = get_soup(requester(fileserver_url).text)
         return parse_download_hyperlink(soup)
