@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from yarl import URL
 
 
@@ -67,3 +69,18 @@ class DownloadHyperlinkNotFound(ParsingError):
 
     def __init__(self) -> None:
         super().__init__('The hyperlink named "Download" wasn\'t found')
+
+
+class FileOpenError(Exception):
+    """The error occurs when the file cannot be opened."""
+
+    def __init__(self, path: Path) -> None:
+        self.path = path
+        super().__init__(f'Unable to open a file: "{path}"')
+
+
+class DeviceSpaceRunOutError(Exception):
+    """The error occurs when the device runs out of space."""
+
+    def __init__(self) -> None:
+        super().__init__("No space left on device")

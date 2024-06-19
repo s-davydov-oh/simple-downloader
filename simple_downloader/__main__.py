@@ -5,6 +5,7 @@ import click
 from yarl import URL
 
 from simple_downloader.config import BASE_DIR, SAVE_FOLDER_NAME
+from simple_downloader.core.exceptions import DeviceSpaceRunOutError
 from simple_downloader.core.logging_settings import logging
 from simple_downloader.core.utils import get_updated_parent_path
 from simple_downloader.handlers.requester import SESSION
@@ -31,6 +32,10 @@ def main(url: URL, path: Path) -> None:
 if __name__ == "__main__":
     try:
         main()
+    except DeviceSpaceRunOutError as e:
+        logger.exception(e)
+        logger.info("[-] Save Error: Probable no space left on device")
+        sys.exit(1)
     except Exception:
         logger.exception("There was an unexpected error")
         logger.info("[?] Unknown Error: Please report it to the developer")

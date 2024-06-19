@@ -54,8 +54,7 @@ def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
         except excs.ExtensionNotSupported as e:
             logger.debug(e)
             logger.info("[-] File extension isn't supported: %s", url)
-
-        except IOError as e:
+        except excs.FileOpenError as e:
             logger.debug(e)
             logger.info("[-] Save Error: %s", url)
 
