@@ -1,5 +1,7 @@
 from logging import getLogger
 from pathlib import Path
+from random import uniform
+from time import sleep
 
 from yarl import URL
 
@@ -10,6 +12,19 @@ from simple_downloader.core.models import MediaAlbum, MediaFile
 logger = getLogger(__name__)
 
 FORBIDDEN = '/<>:"\\|?*'  # https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
+
+
+def apply_delay(delay: float | tuple[float, float] | None) -> None:
+    match delay:
+        case float():
+            sleep_time = delay
+        case tuple():
+            sleep_time = uniform(*delay)
+        case _:
+            sleep_time = 0
+
+    logger.debug("Delay %f second", sleep_time)
+    sleep(sleep_time)
 
 
 def get_updated_parent_path(parent_path: Path, parent_name: str = DEFAULT_ALBUM_NAME) -> Path:

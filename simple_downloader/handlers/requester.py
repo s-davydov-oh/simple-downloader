@@ -1,7 +1,5 @@
 from http import HTTPStatus
 from logging import getLogger
-from random import uniform
-from time import sleep
 from typing import Any, Literal
 
 from fake_useragent import UserAgent
@@ -12,6 +10,7 @@ from yarl import URL
 from simple_downloader.config import DELAY, MAX_REDIRECTS, RETRY_STRATEGY, TIMEOUT, TOTAL_RETRIES
 from simple_downloader.core.exceptions import CustomHTTPError, EmptyContentType
 from simple_downloader.core.logs import log_retry_request, log_request
+from simple_downloader.core.utils import apply_delay
 
 
 logger = getLogger(__name__)
@@ -41,16 +40,7 @@ def requester(
     timeout: tuple[float, float] = TIMEOUT,
     **kwargs: Any,
 ) -> Response:
-    match delay:
-        case float():
-            sleep_time = delay
-        case tuple():
-            sleep_time = uniform(*delay)
-        case _:
-            sleep_time = 0
-
-    logger.debug("Delay before request %f second", sleep_time)
-    sleep(sleep_time)
+    apply_delay(delay)
 
     @retry(
         reraise=True,
@@ -75,7 +65,7 @@ def _raise_http_exception(response: Response) -> None:
         if e.response.status_code in RETRY_CODES:
             if e.response.status_code == HTTPStatus.TOO_MANY_REQUESTS:
                 sleep_time_to_next = int(e.response.headers.get("retry-after", 0))
-                sleep(sleep_time_to_next)
+                apply_delay(sleep_time_to_next)
 
             error_message = str(e)
             raise CustomHTTPError(error_message, **e.__dict__)
