@@ -1,6 +1,17 @@
 from pathlib import Path
 
+from requests import HTTPError
 from yarl import URL
+
+
+class CustomHTTPError(HTTPError):
+    """
+    Exception wrapper for HTTPError.
+    Called if the status code is subject to a retry.
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 
 class CrawlerNotFound(Exception):
