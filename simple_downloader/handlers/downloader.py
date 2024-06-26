@@ -3,7 +3,7 @@ from logging import getLogger
 
 from tqdm import tqdm
 
-from simple_downloader.config import BASE_CHUNK, CHUNK_MULTIPLIER
+from simple_downloader.config import BASE_CHUNK, CHUNK_MULTIPLIER, SUCCESS
 from simple_downloader.core.exceptions import DeviceSpaceRunOutError, FileOpenError
 from simple_downloader.core.models import MediaFile
 from simple_downloader.handlers.requester import requester
@@ -12,7 +12,8 @@ from simple_downloader.handlers.requester import requester
 logger = getLogger(__name__)
 
 TQDM_PARAMS = {
-    "bar_format": "[+] {desc} {percentage:3.0f}% [{bar:20}] {n_fmt}/{total_fmt} | {rate_fmt}",
+    "bar_format": f"{SUCCESS} "
+    + "{desc} {percentage:3.0f}% [{bar:20}] {n_fmt}/{total_fmt} | {rate_fmt}",
     "colour": "GREEN",
     "unit": "B",
     "unit_scale": True,

@@ -1,19 +1,103 @@
+from functools import wraps
 from pathlib import Path
 import sys
+from typing import Any, Callable, ParamSpec, assert_never
 
 import click
+from requests import (
+    ConnectionError,
+    ConnectTimeout,
+    HTTPError,
+    ReadTimeout,
+    RequestException,
+    Timeout,
+    TooManyRedirects,
+)
 from yarl import URL
 
-from simple_downloader.config import BASE_DIR, SAVE_FOLDER_NAME
-from simple_downloader.core.exceptions import DeviceSpaceRunOutError
+from simple_downloader.config import (
+    BASE_DIR,
+    FAILED,
+    MAX_REDIRECTS,
+    SAVE_FOLDER_NAME,
+    TIMEOUT,
+    UNKNOWN,
+)
 from simple_downloader.core.logging_settings import logging
-from simple_downloader.core.utils import get_updated_parent_path
-from simple_downloader.handlers.requester import SESSION
-from simple_downloader.manage import Manager
+from simple_downloader.core.exceptions import (
+    CrawlerNotFound,
+    DeviceSpaceRunOutError,
+    EmptyContentType,
+    ExtensionNotFound,
+    ExtensionNotSupported,
+    FileOpenError,
+)
+from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
+from simple_downloader.core.utils import get_updated_parent_path, get_url_from_args
+from simple_downloader.handlers import downloader, factory, requester
 
+
+P = ParamSpec("P")
 
 # otherwise logging code in "requester" is executed before the logger creation in "__main__.py".
 logger = logging.getLogger("simple_downloader")
+
+
+def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
+    @wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Any:
+        url = get_url_from_args(args)
+
+        try:
+            return func(*args, **kwargs)
+
+        except HTTPError as e:
+            logger.debug(e)
+            phrase = e.response.reason.title()
+            code = e.response.status_code
+            logger.info("%s %s (%s): %s", FAILED, phrase, code, url)
+        except TooManyRedirects as e:
+            logger.debug(e)
+            logger.info("%s Too Many Redirects (max %s): %s", FAILED, MAX_REDIRECTS, url)
+        except Timeout as e:
+            logger.debug(e)
+            connect, read = TIMEOUT
+            match e:
+                case ConnectTimeout():
+                    logger.info("%s Connect Timeout (%s second): %s", FAILED, connect, url)
+                case ReadTimeout():
+                    logger.info("%s Read Timeout (%s second): %s", FAILED, read, url)
+        except (ConnectionError, EmptyContentType) as e:
+            logger.debug(e)
+            logger.info("%s Unknown Server Error: %s", FAILED, url)
+        except RequestException as e:
+            logger.warning(e, exc_info=True)
+            logger.info("%s Download Error: %s", FAILED, url)
+
+        except ExtensionNotFound as e:
+            logger.debug(e)
+            logger.info('%s File "%s" has no extension: %s', FAILED, e.title, url)
+        except ExtensionNotSupported as e:
+            logger.debug(e)
+            logger.info('%s File extension "%s" is not supported: %s', FAILED, e.extension, url)
+        except FileOpenError as e:
+            logger.debug(e)
+            logger.info("%s Filename has forbidden chars: %s", FAILED, url)
+
+    return wrapper
+
+
+@error_handling_wrapper
+def download(url: URL, save_path: Path, crawler: Crawler) -> None:
+    media = crawler.scrape_media(url)
+    match media:
+        case MediaAlbum():
+            save_path = get_updated_parent_path(save_path, media.title)
+            [download(file_url, save_path, crawler) for file_url in media.file_urls]
+        case MediaFile():
+            downloader.download(media, save_path)
+        case _ as unreachable:
+            assert_never(unreachable)
 
 
 @click.command()
@@ -25,21 +109,33 @@ logger = logging.getLogger("simple_downloader")
     default=get_updated_parent_path(BASE_DIR, SAVE_FOLDER_NAME),
 )
 def main(url: URL, path: Path) -> None:
-    manager = Manager(path)
-    manager.startup(url)
+    print(f"Downloading {url}.")
+    print(f'Save path "{path}".')
+    print("-" * 50)
+
+    try:
+        crawler: Crawler = factory.get_crawler(url)
+    except CrawlerNotFound as e:
+        logger.debug(e)
+        logger.info("%s Hosting is not supported: %s", FAILED, url)
+    else:
+        try:
+            download(url, path, crawler)
+        except DeviceSpaceRunOutError as e:
+            logger.warning(e, exc_info=True)
+            logger.info("%s Save Error: Probably not enough free space", FAILED)
+            sys.exit(1)
+    finally:
+        print("\nComplete.")
 
 
 if __name__ == "__main__":
     try:
         main()
-    except DeviceSpaceRunOutError as e:
-        logger.exception(e)
-        logger.info("[-] Save Error: Probable no space left on device")
-        sys.exit(1)
     except Exception:
         logger.exception("There was an unexpected error")
-        logger.info("[?] Unknown Error: Please report it to the developer")
+        logger.info("%s Unknown Error: Please report it to the developer", UNKNOWN)
         sys.exit(1)
     finally:
-        SESSION.close()
+        requester.SESSION.close()
         logger.debug("Session is closed".upper())
