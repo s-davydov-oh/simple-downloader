@@ -93,7 +93,4 @@ def parse_file_urls(
         raise FileTableNotFound
 
     for tag in tags_with_file_urls:
-        if base_url is not None:
-            yield URL(base_url.with_path(tag["href"]))  # type: ignore[reportArgumentType]
-
-        yield URL(tag["href"])  # type: ignore[reportArgumentType]
+        yield URL(tag["href"]) if base_url is None else URL(base_url.with_path(tag["href"]))  # type: ignore[reportArgumentType]
