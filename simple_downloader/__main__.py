@@ -64,9 +64,9 @@ def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
             connect, read = TIMEOUT
             match e:
                 case ConnectTimeout():
-                    logger.info("%s Connect Timeout (%s second): %s", FAILED, connect, url)
+                    logger.info("%s Connect Timeout (%s seconds): %s", FAILED, connect, url)
                 case ReadTimeout():
-                    logger.info("%s Read Timeout (%s second): %s", FAILED, read, url)
+                    logger.info("%s Read Timeout (%s seconds): %s", FAILED, read, url)
         except (ConnectionError, EmptyContentType) as e:
             logger.debug(e)
             logger.info("%s Unknown Server Error: %s", FAILED, url)

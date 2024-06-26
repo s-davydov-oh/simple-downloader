@@ -23,7 +23,7 @@ def apply_delay(delay: float | tuple[float, float] | None) -> None:
         case _:
             sleep_time = 0
 
-    logger.debug("Delay %f second", sleep_time)
+    logger.debug("Delay %s seconds", f"{sleep_time:.2f}")
     sleep(sleep_time)
 
 

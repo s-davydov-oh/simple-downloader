@@ -38,4 +38,4 @@ def log_retry_request(retry_state: RetryCallState) -> None:
     else:
         verb, value = "returned", retry_state.outcome.result()
 
-    logger.debug("Retry in %s second as it %s %s", retry_state.next_action.sleep, verb, value)
+    logger.debug("Retry in %s seconds as it %s %s", retry_state.next_action.sleep, verb, value)
