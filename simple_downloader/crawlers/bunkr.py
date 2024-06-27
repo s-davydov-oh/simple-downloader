@@ -10,12 +10,11 @@ from simple_downloader.core.parsing import (
     parse_filename,
     parse_title,
 )
-from simple_downloader.handlers.requester import requester
 
 
 class Bunkr(Crawler):
     def scrape_media(self, url: URL) -> MediaAlbum | MediaFile:
-        soup = get_soup(requester(url).text)
+        soup = get_soup(self.http_client.get_response(url).text)
         title = parse_title(soup)
         media_type = url.parts[1]
         match media_type:
@@ -35,8 +34,7 @@ class Bunkr(Crawler):
             case _:
                 raise InvalidMediaType(media_type, url)
 
-    @staticmethod
-    def _parse_stream_url(soup: BeautifulSoup) -> URL:
+    def _parse_stream_url(self, soup: BeautifulSoup) -> URL:
         fileserver_url = parse_download_hyperlink(soup)
-        soup = get_soup(requester(fileserver_url).text)
+        soup = get_soup(self.http_client.get_response(fileserver_url).text)
         return parse_download_hyperlink(soup)

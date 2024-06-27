@@ -6,7 +6,7 @@ from tqdm import tqdm
 from simple_downloader.config import BASE_CHUNK, CHUNK_MULTIPLIER, SUCCESS
 from simple_downloader.core.exceptions import DeviceSpaceRunOutError, FileOpenError
 from simple_downloader.core.models import MediaFile
-from simple_downloader.handlers.requester import requester
+from simple_downloader.handlers.requester import Requester
 
 
 logger = getLogger(__name__)
@@ -26,9 +26,10 @@ TQDM_PARAMS = {
 def download(
     file: MediaFile,
     save_path: Path,
+    http_client: Requester,
     chunk_size: int = BASE_CHUNK * CHUNK_MULTIPLIER,
 ) -> None:
-    stream = requester(file.stream_url, stream=True)
+    stream = http_client.get_response(file.stream_url, stream=True)
     size = int(stream.headers.get("content-length", 0))
 
     def save() -> None:

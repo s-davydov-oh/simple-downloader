@@ -44,7 +44,7 @@ LOGGING = {
     },
     "loggers": {
         "simple_downloader": {
-            "level": "INFO",
+            "level": "DEBUG",
             "handlers": ["file", "console"],
         },
     },
@@ -57,5 +57,3 @@ LOGGING = {
         },
     },
 }
-
-logging.config.dictConfig(LOGGING)

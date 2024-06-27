@@ -3,7 +3,6 @@ from yarl import URL
 from simple_downloader.core.exceptions import InvalidMediaType
 from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
 from simple_downloader.core.parsing import get_soup, parse_file_urls, parse_filename, parse_title
-from simple_downloader.handlers.requester import requester
 
 
 class Cyberdrop(Crawler):
@@ -13,7 +12,7 @@ class Cyberdrop(Crawler):
         media_type = url.parts[1]
         match media_type:
             case "a":
-                soup = get_soup(requester(url).text)
+                soup = get_soup(self.http_client.get_response(url).text)
                 return MediaAlbum(
                     title=parse_title(soup),
                     url=url,
@@ -21,7 +20,7 @@ class Cyberdrop(Crawler):
                 )
             case "f":
                 api = self.BASE_API.joinpath(url.path[1:])
-                json = requester(api).json()
+                json = self.http_client.get_response(api).json()
                 return MediaFile(
                     title=json["name"],
                     filename=parse_filename(json["name"]),

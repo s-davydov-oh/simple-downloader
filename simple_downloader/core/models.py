@@ -1,11 +1,14 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Iterator
+from typing import TYPE_CHECKING, Iterator
 
 from yarl import URL
 
 from simple_downloader.config import SUPPORTED_EXTENSIONS
 from simple_downloader.core.exceptions import ExtensionNotSupported
+
+if TYPE_CHECKING:
+    from simple_downloader.handlers.requester import Requester
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,8 +48,9 @@ class MediaFile:
 
 
 class Crawler(ABC):  # if you use @dataclass, an "unexpected argument" for an obj attribute.
-    def __init__(self, base_url: URL) -> None:
+    def __init__(self, base_url: URL, http_client: "Requester") -> None:
         self.base_url = base_url
+        self.http_client = http_client
 
     @abstractmethod
     def scrape_media(self, url: URL) -> MediaAlbum | MediaFile: ...

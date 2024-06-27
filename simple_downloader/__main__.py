@@ -1,4 +1,5 @@
 from functools import wraps
+from logging import config, getLogger
 from pathlib import Path
 import sys
 from typing import Any, Callable, ParamSpec, assert_never
@@ -23,7 +24,6 @@ from simple_downloader.config import (
     TIMEOUT,
     UNKNOWN,
 )
-from simple_downloader.core.logging_settings import logging
 from simple_downloader.core.exceptions import (
     CrawlerNotFound,
     DeviceSpaceRunOutError,
@@ -32,6 +32,7 @@ from simple_downloader.core.exceptions import (
     ExtensionNotSupported,
     FileOpenError,
 )
+from simple_downloader.core.logging_settings import LOGGING
 from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
 from simple_downloader.core.utils import get_updated_parent_path, get_url_from_args
 from simple_downloader.handlers import downloader, factory, requester
@@ -39,8 +40,8 @@ from simple_downloader.handlers import downloader, factory, requester
 
 P = ParamSpec("P")
 
-# otherwise logging code in "requester" is executed before the logger creation in "__main__.py".
-logger = logging.getLogger("simple_downloader")
+config.dictConfig(LOGGING)
+logger = getLogger("simple_downloader")
 
 
 def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
@@ -88,14 +89,14 @@ def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
 
 
 @error_handling_wrapper
-def download(url: URL, save_path: Path, crawler: Crawler) -> None:
+def download(url: URL, save_path: Path, crawler: Crawler, http_client: requester.Requester) -> None:
     media = crawler.scrape_media(url)
     match media:
         case MediaAlbum():
             save_path = get_updated_parent_path(save_path, media.title)
-            [download(file_url, save_path, crawler) for file_url in media.file_urls]
+            [download(file_url, save_path, crawler, http_client) for file_url in media.file_urls]
         case MediaFile():
-            downloader.download(media, save_path)
+            downloader.download(media, save_path, http_client)
         case _ as unreachable:
             assert_never(unreachable)
 
@@ -113,20 +114,21 @@ def main(url: URL, path: Path) -> None:
     print(f'Save path "{path}".')
     print("-" * 50)
 
-    try:
-        crawler: Crawler = factory.get_crawler(url)
-    except CrawlerNotFound as e:
-        logger.debug(e)
-        logger.info("%s Hosting is not supported: %s", FAILED, url)
-    else:
+    with requester.Requester() as http_client:
         try:
-            download(url, path, crawler)
-        except DeviceSpaceRunOutError as e:
-            logger.warning(e, exc_info=True)
-            logger.info("%s Save Error: Probably not enough free space", FAILED)
-            sys.exit(1)
-    finally:
-        print("\nComplete.")
+            crawler: Crawler = factory.get_crawler(url, http_client)
+        except CrawlerNotFound as e:
+            logger.debug(e)
+            logger.info("%s Hosting is not supported: %s", FAILED, url)
+        else:
+            try:
+                download(url, path, crawler, http_client)
+            except DeviceSpaceRunOutError as e:
+                logger.warning(e, exc_info=True)
+                logger.info("%s Save Error: Probably not enough free space", FAILED)
+                sys.exit(1)
+        finally:
+            print("\nComplete.")
 
 
 if __name__ == "__main__":
@@ -136,6 +138,3 @@ if __name__ == "__main__":
         logger.exception("There was an unexpected error")
         logger.info("%s Unknown Error: Please report it to the developer", UNKNOWN)
         sys.exit(1)
-    finally:
-        requester.SESSION.close()
-        logger.debug("Session is closed".upper())

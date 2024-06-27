@@ -1,6 +1,7 @@
 from http import HTTPStatus
 from logging import getLogger
-from typing import Any, Literal
+from types import TracebackType
+from typing import Any, Literal, Self
 
 from fake_useragent import UserAgent
 from requests import ConnectionError, HTTPError, Response, Session, Timeout
@@ -15,13 +16,6 @@ from simple_downloader.core.utils import apply_delay
 
 logger = getLogger(__name__)
 
-SESSION = Session()
-SESSION.max_redirects = MAX_REDIRECTS
-
-SESSION.headers.update({"user-agent": UserAgent().random})
-logger.debug("Session is open".upper())
-logger.debug("Client parameters user %s", SESSION.headers)
-
 RETRY_CODES = frozenset(
     {
         HTTPStatus.TOO_MANY_REQUESTS,
@@ -33,14 +27,33 @@ RETRY_CODES = frozenset(
 )
 
 
-def requester(
-    url: URL,
-    method: Literal["get"] = "get",
-    delay: float | tuple[float, float] | None = DELAY,
-    timeout: tuple[float, float] = TIMEOUT,
-    **kwargs: Any,
-) -> Response:
-    apply_delay(delay)
+class Requester:
+    def __init__(
+        self,
+        headers: dict | None = None,
+        delay: float | tuple[float, float] | None = DELAY,
+        timeout: tuple[float, float] = TIMEOUT,
+        max_redirects: int = MAX_REDIRECTS,
+    ) -> None:
+        self._session: Session = Session()
+        logger.debug("Session is open".upper())
+
+        self.client_headers = {"user-agent": UserAgent().random} if headers is None else headers
+        self.delay = delay
+        self.timeout = timeout
+        self.max_redirects = max_redirects
+
+        self._session.max_redirects = self.max_redirects
+        self._session.headers.update(self.client_headers)
+        logger.debug("Session parameters %s", self._session.headers)
+
+    def close(self) -> None:
+        self._session.close()
+        logger.debug("Session is closed".upper())
+
+    def get_response(self, url: URL, **kwargs: Any) -> Response:
+        apply_delay(self.delay)
+        return self._make_request("get", url, **kwargs)
 
     @retry(
         reraise=True,
@@ -50,27 +63,37 @@ def requester(
         before=log_request,
         before_sleep=log_retry_request,
     )
-    def make_request(url: URL) -> Response:
-        response = SESSION.request(method, str(url), timeout=timeout, **kwargs)
-        _raise_http_exception(response)
+    def _make_request(self, method: Literal["get"], url: URL, **kwargs: Any) -> Response:
+        response = self._session.request(method, str(url), timeout=self.timeout, **kwargs)
+        self._raise_http_exception(response)
         return response
 
-    return make_request(url)
+    @staticmethod
+    def _raise_http_exception(response: Response) -> None:
+        try:
+            response.raise_for_status()
+        except HTTPError as e:
+            if e.response.status_code in RETRY_CODES:
+                if e.response.status_code == HTTPStatus.TOO_MANY_REQUESTS:
+                    sleep_to_next = int(e.response.headers.get("retry-after", 0))
+                    apply_delay(sleep_to_next)
 
+                error_message = str(e)
+                raise CustomHTTPError(error_message, **e.__dict__)
+            raise
 
-def _raise_http_exception(response: Response) -> None:
-    try:
-        response.raise_for_status()
-    except HTTPError as e:
-        if e.response.status_code in RETRY_CODES:
-            if e.response.status_code == HTTPStatus.TOO_MANY_REQUESTS:
-                sleep_time_to_next = int(e.response.headers.get("retry-after", 0))
-                apply_delay(sleep_time_to_next)
+        if not response.headers.get("content-type"):
+            logger.debug("HTTP response headers %s", response.headers)
+            raise EmptyContentType
 
-            error_message = str(e)
-            raise CustomHTTPError(error_message, **e.__dict__)
-        raise
+    def __enter__(self) -> Self:
+        return self
 
-    if not response.headers.get("content-type"):
-        logger.debug("HTTP response headers %s", response.headers)
-        raise EmptyContentType
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        if self._session:
+            self.close()
