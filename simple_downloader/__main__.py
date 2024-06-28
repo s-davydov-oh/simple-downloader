@@ -27,8 +27,8 @@ from simple_downloader.config import (
 from simple_downloader.core.exceptions import (
     CrawlerNotFound,
     DeviceSpaceRunOutError,
-    EmptyContentType,
-    ExtensionNotFound,
+    EmptyContentTypeError,
+    ExtensionNotFoundError,
     ExtensionNotSupported,
     FileOpenError,
 )
@@ -68,14 +68,14 @@ def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
                     logger.info("%s Connect Timeout (%s seconds): %s", FAILED, connect, url)
                 case ReadTimeout():
                     logger.info("%s Read Timeout (%s seconds): %s", FAILED, read, url)
-        except (ConnectionError, EmptyContentType) as e:
+        except (ConnectionError, EmptyContentTypeError) as e:
             logger.debug(e)
             logger.info("%s Unknown Server Error: %s", FAILED, url)
         except RequestException as e:
             logger.warning(e, exc_info=True)
             logger.info("%s Download Error: %s", FAILED, url)
 
-        except ExtensionNotFound as e:
+        except ExtensionNotFoundError as e:
             logger.debug(e)
             logger.info('%s File "%s" has no extension: %s', FAILED, e.title, url)
         except ExtensionNotSupported as e:

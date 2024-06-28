@@ -5,11 +5,11 @@ from bs4 import BeautifulSoup, NavigableString, Tag
 from yarl import URL
 
 from simple_downloader.core.exceptions import (
-    DownloadHyperlinkNotFound,
-    ExtensionNotFound,
+    ExtensionNotFoundError,
+    FileTableNotFoundError,
+    HyperlinkNotFoundError,
     ParsingError,
-    FileTableNotFound,
-    TitleNotFound,
+    TitleNotFoundError,
 )
 from simple_downloader.core.models import Extension, Filename
 from simple_downloader.core.utils import decode_cloudflare_email_protection, sanitize
@@ -28,7 +28,7 @@ def parse_filename(name: str) -> Filename:
         stem, ext = match.groups()
         return Filename(sanitize(stem), Extension(ext))
 
-    raise ExtensionNotFound(name)
+    raise ExtensionNotFoundError(name)
 
 
 def parse_title(soup: BeautifulSoup) -> str:
@@ -36,7 +36,7 @@ def parse_title(soup: BeautifulSoup) -> str:
 
     h1_tag: Tag | None = soup.h1
     if h1_tag is None:
-        raise TitleNotFound
+        raise TitleNotFoundError
 
     if _has_cloudflare_protection(h1_tag):
         return _parse_title_from_h1_with_cloudflare_protection(h1_tag)
@@ -76,7 +76,7 @@ def parse_download_hyperlink(soup: BeautifulSoup) -> URL:
 
     tag_with_hyperlink = soup.find("a", href=True, string=compile(r"(?i)download"))
     if tag_with_hyperlink is None:
-        raise DownloadHyperlinkNotFound
+        raise HyperlinkNotFoundError("Download")
 
     return URL(tag_with_hyperlink["href"])  # type: ignore[reportArgumentType]
 
@@ -90,7 +90,7 @@ def parse_file_urls(
 
     tags_with_file_urls = soup.select(file_table_selector)
     if not tags_with_file_urls:
-        raise FileTableNotFound
+        raise FileTableNotFoundError
 
     for tag in tags_with_file_urls:
         yield URL(tag["href"]) if base_url is None else URL(base_url.with_path(tag["href"]))  # type: ignore[reportArgumentType]

@@ -9,7 +9,7 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 from yarl import URL
 
 from simple_downloader.config import DELAY, MAX_REDIRECTS, RETRY_STRATEGY, TIMEOUT, TOTAL_RETRIES
-from simple_downloader.core.exceptions import CustomHTTPError, EmptyContentType
+from simple_downloader.core.exceptions import CustomHTTPError, EmptyContentTypeError
 from simple_downloader.core.logs import log_retry_request, log_request
 from simple_downloader.core.utils import apply_delay
 
@@ -84,7 +84,7 @@ class Requester:
 
         if not response.headers.get("content-type"):
             logger.debug("HTTP response headers %s", response.headers)
-            raise EmptyContentType
+            raise EmptyContentTypeError
 
     def __enter__(self) -> Self:
         return self

@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from yarl import URL
 
-from simple_downloader.core.exceptions import InvalidMediaType
+from simple_downloader.core.exceptions import UndefinedMediaTypeError
 from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
 from simple_downloader.core.parsing import (
     get_soup,
@@ -32,7 +32,7 @@ class Bunkr(Crawler):
                     stream_url=self._parse_stream_url(soup),
                 )
             case _:
-                raise InvalidMediaType(media_type, url)
+                raise UndefinedMediaTypeError(url, media_type)
 
     def _parse_stream_url(self, soup: BeautifulSoup) -> URL:
         fileserver_url = parse_download_hyperlink(soup)

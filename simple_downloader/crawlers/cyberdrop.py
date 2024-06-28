@@ -1,6 +1,6 @@
 from yarl import URL
 
-from simple_downloader.core.exceptions import InvalidMediaType
+from simple_downloader.core.exceptions import UndefinedMediaTypeError
 from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
 from simple_downloader.core.parsing import get_soup, parse_file_urls, parse_filename, parse_title
 
@@ -28,4 +28,4 @@ class Cyberdrop(Crawler):
                     stream_url=json["url"],
                 )
             case _:
-                raise InvalidMediaType(media_type, url)
+                raise UndefinedMediaTypeError(url, media_type)

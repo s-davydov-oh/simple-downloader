@@ -1,97 +1,111 @@
 from pathlib import Path
+from typing import Any
 
 from requests import HTTPError
 from yarl import URL
 
 
+class DownloadError(Exception):
+    """The error occurs if an ambiguous exception occurred during the file download process."""
+
+    def __init__(self, message: str = "Something went wrong") -> None:
+        super().__init__(message)
+
+
 class CustomHTTPError(HTTPError):
     """
     Exception wrapper for HTTPError.
-    Called if the status code is subject to a retry.
+
+    The error occurs if the request fails and the response status code
+    is included in the list of codes for which retry applies.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 
-class CrawlerNotFound(Exception):
-    """No crawler was found for the hosting."""
+class CrawlerNotFound(DownloadError):
+    """The error occurs if the crawler was not found for the host."""
 
     def __init__(self, url: URL) -> None:
         self.url = url
         super().__init__(f"Crawler not found for {self.url}")
 
 
-class ExtensionNotFound(Exception):
-    """The file doesn't have an extension."""
+class EmptyContentTypeError(DownloadError):
+    """The error occurs if the server returned an empty "content-type"."""
+
+    def __init__(self) -> None:
+        super().__init__('Server returned an empty "content-type"')
+
+
+class UndefinedMediaTypeError(DownloadError):
+    """The error occurs if the crawler is unable to determine the media type."""
+
+    def __init__(self, url: URL, media_type: str) -> None:
+        self.url = url
+        self.media_type = media_type
+        super().__init__(f'Undefined media type "{self.media_type}": {self.url}')
+
+
+class ExtensionNotFoundError(DownloadError):
+    """The error occurs if the received filename does not have an extension."""
 
     def __init__(self, title: str) -> None:
         self.title = title
-        super().__init__(f'"File "{self.title}" doesn\'t have an extension"')
+        super().__init__(f'File "{self.title}" has not extension')
 
 
-class ExtensionNotSupported(Exception):
-    """The extension is not in the list of "supported extensions"."""
+class ExtensionNotSupported(DownloadError):
+    """The error occurs if the file extension is not in the supported list."""
 
     def __init__(self, extension: str) -> None:
         self.extension = extension
-        super().__init__(f'File extension "{self.extension}" isn\'t supported')
+        super().__init__(f'File extension "{self.extension}" is not supported')
 
 
-class EmptyContentType(Exception):
-    """The server returned an empty "content-type"."""
+class FileOpenError(DownloadError):
+    """The error occurs when a file cannot be opened."""
+
+    def __init__(self, path: Path) -> None:
+        self.path = path
+        super().__init__(f'Unable to open the file: "{path}"')
+
+
+class DeviceSpaceRunOutError(DownloadError):
+    """The error occurs when the device runs out of space."""
 
     def __init__(self) -> None:
-        super().__init__("Server returned an unexpected content-type")
+        super().__init__("No space left on device")
 
 
-class InvalidMediaType(Exception):
-    """Crawler can't identify the media type."""
-
-    def __init__(self, media_type: str, url: URL) -> None:
-        self.media_type = media_type
-        self.url = url
-        super().__init__(f'Cannot identify media type for "{self.media_type}": {self.url}')
+# ------------------------------
 
 
-class ParsingError(Exception):
-    """Probably a parsing problem with the Crawler."""
+class ParsingError(DownloadError):
+    """The error occurs if an ambiguous error occurred during parsing."""
 
     def __init__(self, message: str = "Unknown parsing error") -> None:
         super().__init__(message)
 
 
-class FileTableNotFound(ParsingError):
-    """The file table in an album was not found."""
+class FileTableNotFoundError(ParsingError):
+    """The error occurs if the file table is not found."""
 
     def __init__(self) -> None:
         super().__init__("File table not found")
 
 
-class TitleNotFound(ParsingError):
-    """Probably no <h1> tag found."""
+class TitleNotFoundError(ParsingError):
+    """The error occurs if the <h1> tag is not found."""
 
     def __init__(self) -> None:
         super().__init__("<h1> tag not found")
 
 
-class DownloadHyperlinkNotFound(ParsingError):
-    """The hyperlink named "Download" wasn't found."""
+class HyperlinkNotFoundError(ParsingError):
+    """The error occurs if a hyperlink  is not found."""
 
-    def __init__(self) -> None:
-        super().__init__('The hyperlink named "Download" wasn\'t found')
-
-
-class FileOpenError(Exception):
-    """The error occurs when the file cannot be opened."""
-
-    def __init__(self, path: Path) -> None:
-        self.path = path
-        super().__init__(f'Unable to open a file: "{path}"')
-
-
-class DeviceSpaceRunOutError(Exception):
-    """The error occurs when the device runs out of space."""
-
-    def __init__(self) -> None:
-        super().__init__("No space left on device")
+    def __init__(self, name: str) -> None:
+        self.name = name
+        super().__init__(f'Hyperlink named "{self.name}" was not found')
