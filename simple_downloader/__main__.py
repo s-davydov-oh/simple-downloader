@@ -119,7 +119,7 @@ def main(url: URL, path: Path) -> None:
             crawler: Crawler = factory.get_crawler(url, http_client)
         except CrawlerNotFound as e:
             logger.debug(e)
-            logger.info("%s Hosting is not supported: %s", FAILED, url)
+            logger.info("%s Hosting is not supported: %s", FAILED, e.url)
         else:
             try:
                 download(url, path, crawler, http_client)
