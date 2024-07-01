@@ -47,7 +47,8 @@ class MediaFile:
     stream_url: URL
 
 
-class Crawler(ABC):  # if you use @dataclass, an "unexpected argument" for an obj attribute.
+# if u use @dataclass, there will be an "unexpected argument" when init the object
+class Crawler(ABC):
     def __init__(self, base_url: URL, http_client: "Requester") -> None:
         self.base_url = base_url
         self.http_client = http_client

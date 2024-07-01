@@ -20,6 +20,22 @@ def print_to_cli(message: str, disable: bool = DISABLE_CLI_MESSAGES) -> None:
         print(message)
 
 
+def get_updated_parent_path(parent_path: Path, parent_name: str = DEFAULT_ALBUM_NAME) -> Path:
+    """Updates the parent path and removes any invalid characters from the name."""
+
+    correct_parent_name = sanitize(parent_name)
+    updated_parent_path = parent_path.joinpath(correct_parent_name)
+
+    try:
+        updated_parent_path.mkdir(exist_ok=True, parents=True)
+    except IOError as e:
+        logger.debug(e)
+        updated_parent_path = get_updated_parent_path(parent_path)
+
+    logger.debug('Updated path to the saved files will be "%s"', updated_parent_path)
+    return updated_parent_path
+
+
 def apply_delay(delay: float | tuple[float, float] | None) -> None:
     match delay:
         case float():
@@ -33,20 +49,6 @@ def apply_delay(delay: float | tuple[float, float] | None) -> None:
     sleep(sleep_time)
 
 
-def get_updated_parent_path(parent_path: Path, parent_name: str = DEFAULT_ALBUM_NAME) -> Path:
-    correct_parent_name = sanitize(parent_name)
-    updated_parent_path = parent_path.joinpath(correct_parent_name)
-
-    try:
-        updated_parent_path.mkdir(exist_ok=True, parents=True)
-    except IOError as e:
-        logger.debug(e)
-        updated_parent_path = get_updated_parent_path(parent_path)
-
-    logger.debug('Updated save path "%s"', updated_parent_path)
-    return updated_parent_path
-
-
 def get_url_from_args(arguments: tuple) -> URL | str:
     for arg in arguments:
         if isinstance(arg, URL):
@@ -58,7 +60,7 @@ def get_url_from_args(arguments: tuple) -> URL | str:
 
 
 def sanitize(name: str, separator: str = "_") -> str:
-    """Removes all forbidden chars for the dir name and filename."""
+    """Removes illegal characters from the directory and filenames."""
 
     name = "".join(separator if char in FORBIDDEN else char for char in name)
     return name.rstrip(".").strip()
@@ -66,7 +68,8 @@ def sanitize(name: str, separator: str = "_") -> str:
 
 def decode_cloudflare_email_protection(encoded_data: str) -> str:
     """
-    Cloudflare email protection decoding algorithm.
+    The algorithm for decoding email protection provided by CloudFlare.
+
     Source https://usamaejaz.com/cloudflare-email-decoding.
     """
 

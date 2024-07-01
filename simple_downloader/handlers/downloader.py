@@ -52,6 +52,7 @@ def download(
 
     def save() -> None:
         abs_save_path = save_path.joinpath(str(file.filename))
+
         try:
             bf_out = abs_save_path.open("bw")
         except IOError:
@@ -66,6 +67,6 @@ def download(
                     else:
                         bar.update(len(chunk))
 
-            logger.debug("Downloaded %s", file.title)
+            logger.info('Downloaded "%s"', file.title)
 
     save()

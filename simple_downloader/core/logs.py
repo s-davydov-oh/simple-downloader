@@ -19,7 +19,7 @@ def log_request(retry_state: RetryCallState) -> None:
     url = get_url_from_args(retry_state.args)
     attempt = retry_state.attempt_number
 
-    logger.debug("Request has been sent to %s, this is the %s attempt", url, attempt)
+    logger.info("Request has been sent to %s, this is the %s attempt", url, attempt)
 
 
 def log_download(retry_state: RetryCallState) -> None:
@@ -33,7 +33,7 @@ def log_download(retry_state: RetryCallState) -> None:
     url = get_url_from_args(retry_state.args)
     attempt = retry_state.attempt_number
 
-    logger.debug("Downloading %s, this is the %s attempt", url, attempt)
+    logger.info("Downloading %s, this is the %s attempt", url, attempt)
 
 
 def log_retry(retry_state: RetryCallState) -> None:
@@ -55,4 +55,4 @@ def log_retry(retry_state: RetryCallState) -> None:
     else:
         verb, value = "returned", retry_state.outcome.result()
 
-    logger.debug("Retry in %s seconds as it %s %s", retry_state.next_action.sleep, verb, value)
+    logger.info("Retry in %s seconds as it %s %s", retry_state.next_action.sleep, verb, value)

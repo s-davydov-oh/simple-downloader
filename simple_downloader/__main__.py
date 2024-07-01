@@ -109,12 +109,13 @@ def download(url: URL, save_path: Path, crawler: Crawler, http_client: requester
 @click.command()
 @click.argument("url", type=URL)
 @click.option(
-    "--path",  # if the "path" contains "\s", it must be framed with quotes.
+    "--path",  # if the "path" contains "\s", it must be framed with quotes
     "-p",
     type=click.Path(exists=True, file_okay=False, path_type=Path),
     default=get_updated_parent_path(BASE_DIR, SAVE_FOLDER_NAME),
 )
 def main(url: URL, path: Path) -> None:
+    logger.info("Start downloading %s", url)
     print_to_cli(f'Downloading {url}\nSave path "{path}"')
     print_to_cli("-" * 20)
 
