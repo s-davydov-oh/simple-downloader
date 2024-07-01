@@ -16,6 +16,7 @@ LOGGING = {
             "level": "WARNING",
             "class": "logging.FileHandler",
             "filename": BASE_DIR.joinpath("debug.log"),
+            "encoding": "utf-8",
             "formatter": "default",
         },
     },
