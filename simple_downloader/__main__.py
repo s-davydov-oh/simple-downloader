@@ -34,7 +34,11 @@ from simple_downloader.core.exceptions import (
 )
 from simple_downloader.core.logging_settings import LOGGING
 from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
-from simple_downloader.core.utils import get_updated_parent_path, get_url_from_args
+from simple_downloader.core.utils import (
+    print_to_cli,
+    get_updated_parent_path,
+    get_url_from_args,
+)
 from simple_downloader.handlers import downloader, factory, requester
 
 
@@ -56,34 +60,34 @@ def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
             logger.debug(e)
             phrase = e.response.reason.title()
             code = e.response.status_code
-            logger.info("%s %s (%s): %s", FAILED, phrase, code, url)
+            print_to_cli(f"{FAILED} {phrase} ({code} code): {url}")
         except TooManyRedirects as e:
             logger.debug(e)
-            logger.info("%s Too Many Redirects (max %s): %s", FAILED, MAX_REDIRECTS, url)
+            print_to_cli(f"{FAILED} Too Many Redirects (max {MAX_REDIRECTS}): {url}")
         except Timeout as e:
             logger.debug(e)
             connect, read = TIMEOUT
             match e:
                 case ConnectTimeout():
-                    logger.info("%s Connect Timeout (%s seconds): %s", FAILED, connect, url)
+                    print_to_cli(f"{FAILED} Connect Timeout ({connect} seconds): {url}")
                 case ReadTimeout():
-                    logger.info("%s Read Timeout (%s seconds): %s", FAILED, read, url)
+                    print_to_cli(f"{FAILED} Read Timeout ({read} seconds): {url}")
         except (ConnectionError, EmptyContentTypeError) as e:
             logger.debug(e)
-            logger.info("%s Unknown Server Error: %s", FAILED, url)
+            print_to_cli(f"{FAILED} Unknown Server Error: {url}")
         except RequestException as e:
             logger.warning(e, exc_info=True)
-            logger.info("%s Download Error: %s", FAILED, url)
+            print_to_cli(f"{FAILED} Download Error: {url}")
 
         except ExtensionNotFoundError as e:
             logger.debug(e)
-            logger.info('%s File "%s" has no extension: %s', FAILED, e.title, url)
+            print_to_cli(f'{FAILED} File "{e.title}" has no extension: {url}')
         except ExtensionNotSupported as e:
             logger.debug(e)
-            logger.info('%s File extension "%s" is not supported: %s', FAILED, e.extension, url)
+            print_to_cli(f'{FAILED} File extension "{e.extension}" is not supported: {url}')
         except FileOpenError as e:
             logger.debug(e)
-            logger.info("%s Filename has forbidden chars: %s", FAILED, url)
+            print_to_cli(f"{FAILED} Filename has forbidden chars: {url}")
 
     return wrapper
 
@@ -110,25 +114,22 @@ def download(url: URL, save_path: Path, crawler: Crawler, http_client: requester
     default=get_updated_parent_path(BASE_DIR, SAVE_FOLDER_NAME),
 )
 def main(url: URL, path: Path) -> None:
-    print(f"Downloading {url}.")
-    print(f'Save path "{path}".')
-    print("-" * 50)
+    print_to_cli(f'Downloading {url}\nSave path "{path}"')
+    print_to_cli("-" * 20)
 
     with requester.Requester() as http_client:
         try:
             crawler: Crawler = factory.get_crawler(url, http_client)
         except CrawlerNotFound as e:
             logger.debug(e)
-            logger.info("%s Hosting is not supported: %s", FAILED, e.url)
+            print_to_cli(f"{FAILED} Hosting is not supported: {e.url}")
         else:
             try:
                 download(url, path, crawler, http_client)
             except DeviceSpaceRunOutError as e:
                 logger.warning(e, exc_info=True)
-                logger.info("%s Save Error: Probably not enough free space", FAILED)
+                print_to_cli(f"{FAILED} Save Error: Probably not enough free space")
                 sys.exit(1)
-        finally:
-            print("\nComplete.")
 
 
 if __name__ == "__main__":
@@ -136,5 +137,5 @@ if __name__ == "__main__":
         main()
     except Exception:
         logger.exception("There was an unexpected error")
-        logger.info("%s Unknown Error: Please report it to the developer", UNKNOWN)
+        print_to_cli(f"{UNKNOWN} Unknown Error: Please report it to the developer")
         sys.exit(1)

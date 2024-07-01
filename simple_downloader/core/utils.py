@@ -5,13 +5,18 @@ from time import sleep
 
 from yarl import URL
 
-from simple_downloader.config import DEFAULT_ALBUM_NAME
+from simple_downloader.config import DEFAULT_ALBUM_NAME, DISABLE_CLI_MESSAGES
 from simple_downloader.core.models import MediaAlbum, MediaFile
 
 
 logger = getLogger(__name__)
 
 FORBIDDEN = '/<>:"\\|?*'  # https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
+
+
+def print_to_cli(message: str, disable: bool = DISABLE_CLI_MESSAGES) -> None:
+    if disable is False:
+        print(message)
 
 
 def apply_delay(delay: float | tuple[float, float] | None) -> None:

@@ -9,6 +9,7 @@ from simple_downloader.config import (
     BAR_FORMAT,
     BASE_CHUNK,
     CHUNK_MULTIPLIER,
+    DISABLE_CLI_MESSAGES,
     RETRY_STRATEGY,
     TOTAL_RETRIES,
 )
@@ -28,6 +29,7 @@ TQDM_PARAMS = {
     "unit_divisor": BASE_CHUNK,
     "miniters": 1,
     "ascii": True,
+    "disable": DISABLE_CLI_MESSAGES,
 }
 
 
