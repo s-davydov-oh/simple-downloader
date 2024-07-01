@@ -8,6 +8,7 @@ DEFAULT_ALBUM_NAME = "unknown album"
 SUCCESS = "[+]"
 FAILED = "[-]"
 UNKNOWN = "[?]"
+BAR_FORMAT = f"{SUCCESS} " + "{desc} {percentage:3.0f}% [{bar:20}] {n_fmt}/{total_fmt} | {rate_fmt}"
 
 DELAY: float | tuple[float, float] | None = (1.1, 3.1)
 MAX_REDIRECTS = 3

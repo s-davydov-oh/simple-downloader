@@ -6,11 +6,11 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 from tqdm import tqdm
 
 from simple_downloader.config import (
+    BAR_FORMAT,
     BASE_CHUNK,
     CHUNK_MULTIPLIER,
     RETRY_STRATEGY,
     TOTAL_RETRIES,
-    SUCCESS,
 )
 from simple_downloader.core.exceptions import DeviceSpaceRunOutError, FileOpenError
 from simple_downloader.core.models import MediaFile
@@ -21,8 +21,7 @@ from simple_downloader.handlers.requester import Requester
 logger = getLogger(__name__)
 
 TQDM_PARAMS = {
-    "bar_format": f"{SUCCESS} "
-    + "{desc} {percentage:3.0f}% [{bar:20}] {n_fmt}/{total_fmt} | {rate_fmt}",
+    "bar_format": BAR_FORMAT,
     "colour": "GREEN",
     "unit": "B",
     "unit_scale": True,
