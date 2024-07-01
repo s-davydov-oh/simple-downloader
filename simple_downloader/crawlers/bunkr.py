@@ -35,6 +35,6 @@ class Bunkr(Crawler):
                 raise UndefinedMediaTypeError(url, media_type)
 
     def _parse_stream_url(self, soup: BeautifulSoup) -> URL:
-        fileserver_url = parse_download_hyperlink(soup)
-        soup = get_soup(self.http_client.get_response(fileserver_url).text)
+        url_with_hyperlink = parse_download_hyperlink(soup)
+        soup = get_soup(self.http_client.get_response(url_with_hyperlink).text)
         return parse_download_hyperlink(soup)

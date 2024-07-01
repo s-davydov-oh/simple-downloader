@@ -12,7 +12,7 @@ from simple_downloader.core.models import MediaAlbum, MediaFile
 
 logger = getLogger(__name__)
 
-FORBIDDEN = '/<>:"\\|?*'  # https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
+ILLEGAL_CHARS = '/<>:"\\|?*'  # https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
 
 
 def print_to_cli(message: str, disable: bool = DISABLE_CLI_MESSAGES) -> None:
@@ -62,7 +62,7 @@ def get_url_from_args(arguments: tuple) -> URL | str:
 def sanitize(name: str, separator: str = "_") -> str:
     """Removes illegal characters from the directory and filenames."""
 
-    name = "".join(separator if char in FORBIDDEN else char for char in name)
+    name = "".join(separator if char in ILLEGAL_CHARS else char for char in name)
     return name.rstrip(".").strip()
 
 
@@ -73,8 +73,8 @@ def decode_cloudflare_email_protection(encoded_data: str) -> str:
     Source https://usamaejaz.com/cloudflare-email-decoding.
     """
 
-    r = int(encoded_data[:2], 16)
-    chars = [chr(int(encoded_data[i : i + 2], 16) ^ r) for i in range(2, len(encoded_data), 2)]
+    mask = int(encoded_data[:2], 16)
+    chars = [chr(int(encoded_data[i : i + 2], 16) ^ mask) for i in range(2, len(encoded_data), 2)]
     return "".join(chars)
 
 
