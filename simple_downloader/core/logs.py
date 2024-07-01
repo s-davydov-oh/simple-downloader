@@ -34,7 +34,7 @@ def log_download(retry_state: RetryCallState) -> None:
     logger.debug("Downloading %s, this is the %s attempt", url, attempt)
 
 
-def log_retry_request(retry_state: RetryCallState) -> None:
+def log_retry(retry_state: RetryCallState) -> None:
     """
     Logging retry via “tenacity.retry(before_sleep=)”.
     Source "tenacity.before_sleep_log".

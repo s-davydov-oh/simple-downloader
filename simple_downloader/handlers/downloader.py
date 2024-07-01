@@ -14,7 +14,7 @@ from simple_downloader.config import (
 )
 from simple_downloader.core.exceptions import DeviceSpaceRunOutError, FileOpenError
 from simple_downloader.core.models import MediaFile
-from simple_downloader.core.logs import log_download, log_retry_request
+from simple_downloader.core.logs import log_download, log_retry
 from simple_downloader.handlers.requester import Requester
 
 
@@ -38,7 +38,7 @@ TQDM_PARAMS = {
     wait=wait_exponential(**RETRY_STRATEGY),
     retry=retry_if_exception_type(ChunkedEncodingError),
     before=log_download,
-    before_sleep=log_retry_request,
+    before_sleep=log_retry,
 )
 def download(
     file: MediaFile,
