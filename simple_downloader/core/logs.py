@@ -20,6 +20,20 @@ def log_request(retry_state: RetryCallState) -> None:
     logger.debug("Request has been sent to %s, this is the %s attempt", url, attempt)
 
 
+def log_download(retry_state: RetryCallState) -> None:
+    """
+    Logging the start of a file download using tenacity.retry(before=).
+
+    It is expected that the function which uses logging has a URL as one of its parameters,
+    either in media format or as a yarl.URL() object.
+    """
+
+    url = get_url_from_args(retry_state.args)
+    attempt = retry_state.attempt_number
+
+    logger.debug("Downloading %s, this is the %s attempt", url, attempt)
+
+
 def log_retry_request(retry_state: RetryCallState) -> None:
     """
     Logging retry via “tenacity.retry(before_sleep=)”.

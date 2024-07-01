@@ -1,11 +1,20 @@
 from pathlib import Path
 from logging import getLogger
 
+from requests.exceptions import ChunkedEncodingError
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 from tqdm import tqdm
 
-from simple_downloader.config import BASE_CHUNK, CHUNK_MULTIPLIER, SUCCESS
+from simple_downloader.config import (
+    BASE_CHUNK,
+    CHUNK_MULTIPLIER,
+    RETRY_STRATEGY,
+    TOTAL_RETRIES,
+    SUCCESS,
+)
 from simple_downloader.core.exceptions import DeviceSpaceRunOutError, FileOpenError
 from simple_downloader.core.models import MediaFile
+from simple_downloader.core.logs import log_download, log_retry_request
 from simple_downloader.handlers.requester import Requester
 
 
@@ -23,6 +32,14 @@ TQDM_PARAMS = {
 }
 
 
+@retry(
+    reraise=True,
+    stop=stop_after_attempt(TOTAL_RETRIES),
+    wait=wait_exponential(**RETRY_STRATEGY),
+    retry=retry_if_exception_type(ChunkedEncodingError),
+    before=log_download,
+    before_sleep=log_retry_request,
+)
 def download(
     file: MediaFile,
     save_path: Path,
@@ -39,16 +56,15 @@ def download(
         except IOError:
             raise FileOpenError(abs_save_path)
         else:
-            logger.debug("Downloading %s", file.url)
-
             with bf_out, tqdm(desc=file.title, total=size, **TQDM_PARAMS) as bar:
-                try:
-                    for chunk in stream.iter_content(chunk_size):
+                for chunk in stream.iter_content(chunk_size):
+                    try:
                         bf_out.write(chunk)
+                    except OSError:
+                        raise DeviceSpaceRunOutError
+                    else:
                         bar.update(len(chunk))
-                except OSError:
-                    raise DeviceSpaceRunOutError
 
             logger.debug("Downloaded %s", file.title)
 
-    return save()
+    save()
