@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from logging import getLogger
 from pathlib import Path
 from random import uniform
@@ -72,3 +73,10 @@ def decode_cloudflare_email_protection(encoded_data: str) -> str:
     r = int(encoded_data[:2], 16)
     chars = [chr(int(encoded_data[i : i + 2], 16) ^ r) for i in range(2, len(encoded_data), 2)]
     return "".join(chars)
+
+
+def get_http_status_phrase(status_code: int) -> str:
+    try:
+        return HTTPStatus(status_code).phrase
+    except ValueError:
+        return "HTTP Error"

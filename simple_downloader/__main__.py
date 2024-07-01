@@ -36,6 +36,7 @@ from simple_downloader.core.logging_settings import LOGGING
 from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
 from simple_downloader.core.utils import (
     print_to_cli,
+    get_http_status_phrase,
     get_updated_parent_path,
     get_url_from_args,
 )
@@ -58,8 +59,8 @@ def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
 
         except HTTPError as e:
             logger.debug(e)
-            phrase = e.response.reason.title()
             code = e.response.status_code
+            phrase = get_http_status_phrase(code)
             print_to_cli(f"{FAILED} {phrase} ({code} code): {url}")
         except TooManyRedirects as e:
             logger.debug(e)
