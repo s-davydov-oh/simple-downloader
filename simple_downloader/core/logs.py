@@ -10,8 +10,10 @@ logger = getLogger(__name__)
 
 def log_request(retry_state: RetryCallState) -> None:
     """
-    Logging sending a request via "tenacity.retry(before=)".
-    It is expected that one of the arguments to the function to which the logging is applied is a URL.
+    Logging the request using tenacity.retry(before=).
+
+    It is expected that the function which uses logging has a URL as one of its parameters,
+    either in media format or as a yarl.URL() object.
     """
 
     url = get_url_from_args(retry_state.args)
@@ -36,8 +38,9 @@ def log_download(retry_state: RetryCallState) -> None:
 
 def log_retry(retry_state: RetryCallState) -> None:
     """
-    Logging retry via “tenacity.retry(before_sleep=)”.
-    Source "tenacity.before_sleep_log".
+    Logging the retry using tenacity.retry(before_sleep=).
+
+    Source tenacity.before_sleep_log.
     """
 
     if retry_state.outcome is None:
