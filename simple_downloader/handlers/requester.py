@@ -51,9 +51,9 @@ class Requester:
         self._session.close()
         logger.debug("Session is closed".upper())
 
-    def get_response(self, url: URL, **kwargs: Any) -> Response:
+    def get_response(self, url: URL, stream: bool = False) -> Response:
         apply_delay(self.delay)
-        return self._make_request("get", url, **kwargs)
+        return self._make_request("get", url, stream=stream)
 
     @retry(
         reraise=True,
