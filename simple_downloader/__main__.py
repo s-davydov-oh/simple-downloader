@@ -32,7 +32,7 @@ from simple_downloader.core.exceptions import (
     ExtensionNotSupported,
     FileOpenError,
 )
-from simple_downloader.core.logging_settings import LOGGING
+from simple_downloader.core.log_settings import LOGGING
 from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
 from simple_downloader.core.utils import (
     print_to_cli,
