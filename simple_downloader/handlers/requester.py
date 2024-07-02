@@ -18,6 +18,7 @@ logger = getLogger(__name__)
 
 RETRY_CODES = frozenset(
     {
+        HTTPStatus.REQUEST_TIMEOUT,
         HTTPStatus.TOO_MANY_REQUESTS,
         HTTPStatus.INTERNAL_SERVER_ERROR,
         HTTPStatus.BAD_GATEWAY,
