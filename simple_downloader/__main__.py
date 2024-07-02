@@ -11,7 +11,6 @@ from requests import (
     HTTPError,
     ReadTimeout,
     RequestException,
-    Timeout,
     TooManyRedirects,
 )
 from yarl import URL
@@ -21,7 +20,6 @@ from simple_downloader.config import (
     FAILED,
     MAX_REDIRECTS,
     SAVE_FOLDER_NAME,
-    TIMEOUT,
     UNKNOWN,
 )
 from simple_downloader.core.exceptions import (
@@ -65,14 +63,12 @@ def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
         except TooManyRedirects as e:
             logger.debug(e)
             print_to_cli(f"{FAILED} Too Many Redirects (max {MAX_REDIRECTS}): {url}")
-        except Timeout as e:
+        except ConnectTimeout as e:
             logger.debug(e)
-            connect, read = TIMEOUT
-            match e:
-                case ConnectTimeout():
-                    print_to_cli(f"{FAILED} Connect Timeout ({connect} seconds): {url}")
-                case ReadTimeout():
-                    print_to_cli(f"{FAILED} Read Timeout ({read} seconds): {url}")
+            print_to_cli(f"{FAILED} Connect Timeout: {url}")
+        except ReadTimeout as e:
+            logger.debug(e)
+            print_to_cli(f"{FAILED} Read Timeout: {url}")
         except (ConnectionError, EmptyContentTypeError) as e:
             logger.debug(e)
             print_to_cli(f"{FAILED} Unknown Server Error: {url}")
