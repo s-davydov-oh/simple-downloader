@@ -7,23 +7,27 @@ LOGGING = {
     "formatters": {
         "default": {
             "format": "{asctime} | {levelname} | {module}:{funcName}:{lineno} - {message}",
-            "datefmt": "%Y-%m-%d %H:%M:%S",
+            "datefmt": "%H:%M:%S",
             "style": "{",
         },
     },
     "handlers": {
         "file": {
-            "level": "WARNING",
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR.joinpath("debug.log"),
-            "encoding": "utf-8",
+            "level": "DEBUG",
+            "class": "logging.handlers.TimedRotatingFileHandler",
             "formatter": "default",
+            "filename": BASE_DIR.joinpath("log.log"),
+            "when": "midnight",
+            "backupCount": 3,
+            "encoding": "utf-8",
         },
     },
     "loggers": {
         "simple_downloader": {
-            "level": "DEBUG",
-            "handlers": ["file"],
+            "level": "WARNING",
+            "handlers": [
+                "file",
+            ],
         },
     },
 }
