@@ -111,7 +111,7 @@ def download(url: URL, save_path: Path, crawler: Crawler, http_client: requester
     default=get_updated_parent_path(BASE_DIR, SAVE_FOLDER_NAME),
 )
 def main(url: URL, path: Path) -> None:
-    logger.info("Start downloading %s", url)
+    logger.info("Start task %s", url)
     print_to_cli(f'Downloading {url}\nSave path "{path}"')
     print_to_cli("-" * 20)
 
