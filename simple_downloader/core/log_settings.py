@@ -6,7 +6,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "default": {
-            "format": "{asctime} | {levelname} | {module}:{funcName}:{lineno} - {message}",
+            "format": "{asctime} | {levelname} | {name}.{funcName}:{lineno} - {message}",
             "datefmt": "%H:%M:%S",
             "style": "{",
         },
