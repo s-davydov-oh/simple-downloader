@@ -39,12 +39,37 @@ class MediaAlbum:
     file_urls: Iterator[URL]
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class MediaFile:
     title: str
     filename: Filename
     url: URL
     stream_url: URL
+    is_downloaded: bool = False
+
+    def mark_downloaded(self) -> None:
+        self.is_downloaded = True
+
+
+@dataclass(slots=True)
+class DownloadCounter:
+    _attempts: int = 0
+    successes: int = 0
+
+    @property
+    def attempts(self):
+        # -1 in case an album is parsed (album is counted as a file)
+        return self._attempts - 1 if self._attempts > 1 else self._attempts
+
+    @property
+    def failures(self) -> int:
+        return self.attempts - self.successes
+
+    def add_attempt(self) -> None:
+        self._attempts += 1
+
+    def add_success(self) -> None:
+        self.successes += 1
 
 
 # if u use @dataclass, there will be an "unexpected argument" when init the object

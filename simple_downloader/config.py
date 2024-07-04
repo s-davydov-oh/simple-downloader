@@ -9,6 +9,7 @@ SAVE_FOLDER_NAME = "saves"
 DEFAULT_ALBUM_NAME = "unknown album"
 SUCCESS = "[+]"
 FAILED = "[-]"
+INFO = "[!]"
 UNKNOWN = "[?]"
 BAR_FORMAT = f"{SUCCESS} " + "{desc} {percentage:3.0f}% [{bar:20}] {n_fmt}/{total_fmt} | {rate_fmt}"
 

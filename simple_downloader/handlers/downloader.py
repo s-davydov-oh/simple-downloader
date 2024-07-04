@@ -66,7 +66,8 @@ def download(
                         raise DeviceSpaceRunOutError
                     else:
                         bar.update(len(chunk))
-
-            logger.info('Downloaded "%s"', file.title)
+                else:
+                    file.mark_downloaded()
+                    logger.info('Downloaded "%s"', file.title)
 
     save()

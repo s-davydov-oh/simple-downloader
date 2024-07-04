@@ -18,6 +18,7 @@ from yarl import URL
 from simple_downloader.config import (
     BASE_DIR,
     FAILED,
+    INFO,
     MAX_REDIRECTS,
     SAVE_FOLDER_NAME,
     UNKNOWN,
@@ -31,7 +32,7 @@ from simple_downloader.core.exceptions import (
     FileOpenError,
 )
 from simple_downloader.core.log_settings import LOGGING
-from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
+from simple_downloader.core.models import Crawler, DownloadCounter, MediaAlbum, MediaFile
 from simple_downloader.core.utils import (
     print_to_cli,
     get_http_status_phrase,
@@ -90,14 +91,27 @@ def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
 
 
 @error_handling_wrapper
-def download(url: URL, save_path: Path, crawler: Crawler, http_client: requester.Requester) -> None:
+def download(
+    url: URL,
+    save_path: Path,
+    crawler: Crawler,
+    http_client: requester.Requester,
+    counter: DownloadCounter,
+) -> None:
+    counter.add_attempt()
+
     media = crawler.scrape_media(url)
     match media:
         case MediaAlbum():
             save_path = get_updated_parent_path(save_path, media.title)
-            [download(file_url, save_path, crawler, http_client) for file_url in media.file_urls]
+            for file_url in media.file_urls:
+                download(file_url, save_path, crawler, http_client, counter)
+
         case MediaFile():
             downloader.download(media, save_path, http_client)
+            if media.is_downloaded:
+                counter.add_success()
+
         case _ as unreachable:
             assert_never(unreachable)
 
@@ -112,8 +126,9 @@ def download(url: URL, save_path: Path, crawler: Crawler, http_client: requester
 )
 def main(url: URL, path: Path) -> None:
     logger.info("Start task %s", url)
-    print_to_cli(f'Downloading {url}\nSave path "{path}"')
-    print_to_cli("-" * 20)
+    print_to_cli(f"Task {url}\n" f'Path "{path}"')
+
+    counter = DownloadCounter()
 
     with requester.Requester() as http_client:
         try:
@@ -123,11 +138,17 @@ def main(url: URL, path: Path) -> None:
             print_to_cli(f"{FAILED} Hosting is not supported: {e.url}")
         else:
             try:
-                download(url, path, crawler, http_client)
+                download(url, path, crawler, http_client, counter)
             except DeviceSpaceRunOutError as e:
                 logger.warning(e, exc_info=True)
                 print_to_cli(f"{FAILED} Save Error: Probably not enough free space")
                 sys.exit(1)
+            finally:
+                print_to_cli(
+                    f"\n{INFO} Completed: "
+                    f"{counter.successes} successfully downloaded, "
+                    f"{counter.failures} failed attempts."
+                )
 
 
 if __name__ == "__main__":
