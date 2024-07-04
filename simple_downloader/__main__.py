@@ -56,34 +56,34 @@ def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
             return func(*args, **kwargs)
 
         except HTTPError as e:
-            logger.debug(e)
+            logger.info(e)
             code = e.response.status_code
             phrase = get_http_status_phrase(code)
             print_to_cli(f"{FAILED} {phrase} ({code} code): {url}")
         except TooManyRedirects as e:
-            logger.debug(e)
+            logger.info(e)
             print_to_cli(f"{FAILED} Too Many Redirects (max {MAX_REDIRECTS}): {url}")
         except ConnectTimeout as e:
-            logger.debug(e)
+            logger.info(e)
             print_to_cli(f"{FAILED} Connect Timeout: {url}")
         except ReadTimeout as e:
-            logger.debug(e)
+            logger.info(e)
             print_to_cli(f"{FAILED} Read Timeout: {url}")
         except (ConnectionError, EmptyContentTypeError) as e:
-            logger.debug(e)
+            logger.info(e)
             print_to_cli(f"{FAILED} Unknown Server Error: {url}")
         except RequestException as e:
             logger.warning(e, exc_info=True)
             print_to_cli(f"{FAILED} Download Error: {url}")
 
         except ExtensionNotFoundError as e:
-            logger.debug(e)
+            logger.info(e)
             print_to_cli(f'{FAILED} File "{e.title}" has no extension: {url}')
         except ExtensionNotSupported as e:
-            logger.debug(e)
+            logger.info(e)
             print_to_cli(f'{FAILED} File extension "{e.extension}" is not supported: {url}')
         except FileOpenError as e:
-            logger.debug(e)
+            logger.info(e)
             print_to_cli(f"{FAILED} Filename has forbidden chars: {url}")
 
     return wrapper
@@ -119,7 +119,7 @@ def main(url: URL, path: Path) -> None:
         try:
             crawler: Crawler = factory.get_crawler(url, http_client)
         except CrawlerNotFound as e:
-            logger.debug(e)
+            logger.info(e)
             print_to_cli(f"{FAILED} Hosting is not supported: {e.url}")
         else:
             try:
