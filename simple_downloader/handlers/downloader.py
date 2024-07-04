@@ -29,6 +29,7 @@ TQDM_PARAMS = {
     "unit_divisor": BASE_CHUNK,
     "miniters": 1,
     "ascii": True,
+    "leave": False,
     "disable": DISABLE_CLI_MESSAGES,
 }
 
