@@ -3,6 +3,7 @@ from logging import getLogger
 from pathlib import Path
 from random import uniform
 from time import sleep
+from sys import stderr
 
 from yarl import URL
 
@@ -15,9 +16,9 @@ logger = getLogger(__name__)
 ILLEGAL_CHARS = '/<>:"\\|?*'  # https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
 
 
-def print_to_cli(message: str, disable: bool = DISABLE_CLI_MESSAGES) -> None:
+def print_info(message: str, is_error: bool = True, disable: bool = DISABLE_CLI_MESSAGES) -> None:
     if disable is False:
-        print(message)
+        print(message, file=stderr) if is_error else print(message)
 
 
 def get_updated_parent_path(parent_path: Path, parent_name: str = DEFAULT_ALBUM_NAME) -> Path:

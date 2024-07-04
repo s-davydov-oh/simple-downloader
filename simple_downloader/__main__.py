@@ -34,10 +34,10 @@ from simple_downloader.core.exceptions import (
 from simple_downloader.core.log_settings import LOGGING
 from simple_downloader.core.models import Crawler, DownloadCounter, MediaAlbum, MediaFile
 from simple_downloader.core.utils import (
-    print_to_cli,
     get_http_status_phrase,
     get_updated_parent_path,
     get_url_from_args,
+    print_info,
 )
 from simple_downloader.handlers import downloader, factory, requester
 
@@ -60,32 +60,32 @@ def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
             logger.info(e)
             code = e.response.status_code
             phrase = get_http_status_phrase(code)
-            print_to_cli(f"{FAILURE} {phrase} ({code} code): {url}")
+            print_info(f"{FAILURE} {phrase} ({code} code): {url}")
         except TooManyRedirects as e:
             logger.info(e)
-            print_to_cli(f"{FAILURE} Too Many Redirects (max {MAX_REDIRECTS}): {url}")
+            print_info(f"{FAILURE} Too Many Redirects (max {MAX_REDIRECTS}): {url}")
         except ConnectTimeout as e:
             logger.info(e)
-            print_to_cli(f"{FAILURE} Connect Timeout: {url}")
+            print_info(f"{FAILURE} Connect Timeout: {url}")
         except ReadTimeout as e:
             logger.info(e)
-            print_to_cli(f"{FAILURE} Read Timeout: {url}")
+            print_info(f"{FAILURE} Read Timeout: {url}")
         except (ConnectionError, EmptyContentTypeError) as e:
             logger.info(e)
-            print_to_cli(f"{FAILURE} Unknown Server Error: {url}")
+            print_info(f"{FAILURE} Unknown Server Error: {url}")
         except RequestException as e:
             logger.warning(e, exc_info=True)
-            print_to_cli(f"{FAILURE} Download Error: {url}")
+            print_info(f"{FAILURE} Download Error: {url}")
 
         except ExtensionNotFoundError as e:
             logger.info(e)
-            print_to_cli(f'{FAILURE} File "{e.title}" has no extension: {url}')
+            print_info(f'{FAILURE} File "{e.title}" has no extension: {url}')
         except ExtensionNotSupported as e:
             logger.info(e)
-            print_to_cli(f'{FAILURE} File extension "{e.extension}" is not supported: {url}')
+            print_info(f'{FAILURE} File extension "{e.extension}" is not supported: {url}')
         except FileOpenError as e:
             logger.info(e)
-            print_to_cli(f"{FAILURE} Filename has forbidden chars: {url}")
+            print_info(f"{FAILURE} Filename has forbidden chars: {url}")
 
     return wrapper
 
@@ -126,7 +126,7 @@ def download(
 )
 def main(url: URL, path: Path) -> None:
     logger.info("Start task %s", url)
-    print_to_cli(f"Task {url}\n" f'Path "{path}"')
+    print_info(f"Task {url}\n" f'Path "{path}"', is_error=False)
 
     counter = DownloadCounter()
 
@@ -135,19 +135,20 @@ def main(url: URL, path: Path) -> None:
             crawler: Crawler = factory.get_crawler(url, http_client)
         except CrawlerNotFound as e:
             logger.info(e)
-            print_to_cli(f"{FAILURE} Hosting is not supported: {e.url}")
+            print_info(f"{FAILURE} Hosting is not supported: {e.url}")
         else:
             try:
                 download(url, path, crawler, http_client, counter)
             except DeviceSpaceRunOutError as e:
-                logger.warning(e, exc_info=True)
-                print_to_cli(f"{FAILURE} Save Error: Probably not enough free space")
+                logger.warning(e)
+                print_info(f"{FAILURE} Save Error: Probably not enough free space")
                 sys.exit(1)
             finally:
-                print_to_cli(
+                print_info(
                     f"\n{INFO} Completed: "
                     f"{counter.successes} successfully downloaded, "
-                    f"{counter.failures} failed attempts."
+                    f"{counter.failures} failed attempts.",
+                    is_error=False,
                 )
 
 
@@ -156,5 +157,5 @@ if __name__ == "__main__":
         main()
     except Exception:
         logger.exception("There was an unexpected error")
-        print_to_cli(f"{UNKNOWN} Unknown Error: Please report it to the developer")
+        print_info(f"{UNKNOWN} Unknown Error: Please report it to the developer")
         sys.exit(1)
