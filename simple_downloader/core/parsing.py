@@ -1,5 +1,5 @@
 from re import compile
-from typing import Iterator, Optional
+from typing import Iterator
 
 from bs4 import BeautifulSoup, NavigableString, Tag
 from yarl import URL
@@ -65,7 +65,7 @@ def parse_download_hyperlink(soup: BeautifulSoup) -> URL:
 def parse_file_urls(
     soup: BeautifulSoup,
     file_table_selector: str,
-    base_url: Optional[URL] = None,
+    base_url: URL | None = None,
 ) -> Iterator[URL]:
     """Parses file URLs from the album page using selectors from SoupSieve built into BeautifulSoup."""
 
