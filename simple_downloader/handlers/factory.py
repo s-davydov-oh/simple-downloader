@@ -18,15 +18,10 @@ HOST_MAPPING = {
 
 
 def get_crawler(url: URL, http_client: Requester) -> Crawler:
-    crawler = _choice_crawler(url)
-    return crawler(http_client)
-
-
-def _choice_crawler(url: URL) -> type[Crawler]:
     if url.host is not None:
         for host_pattern, crawler in HOST_MAPPING.items():
             if host_pattern.search(url.host):
                 logger.debug("Received <%s> crawler for %s", crawler.__module__, url)
-                return crawler
+                return crawler(http_client)
 
     raise CrawlerNotFound(url)
