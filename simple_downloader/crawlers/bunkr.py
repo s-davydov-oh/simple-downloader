@@ -13,7 +13,7 @@ from simple_downloader.core.parsing import (
 
 
 class Bunkr(Crawler):
-    def scrape_media(self, url: URL) -> MediaAlbum | MediaFile:
+    def get_media(self, url: URL) -> MediaAlbum | MediaFile:
         response = self.http_client.get_response(url)
         url_after_redirects = URL(response.url)  # a lot of old urls whose media type is not parsed
         soup = get_soup(response.text)

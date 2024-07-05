@@ -100,7 +100,7 @@ def download(
 ) -> None:
     counter.add_attempt()
 
-    media = crawler.scrape_media(url)
+    media = crawler.get_media(url)
     match media:
         case MediaAlbum():
             save_path = get_updated_parent_path(save_path, media.title)

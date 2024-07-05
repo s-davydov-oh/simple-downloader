@@ -8,7 +8,7 @@ from simple_downloader.core.parsing import get_soup, parse_file_urls, parse_file
 class Cyberdrop(Crawler):
     BASE_API = URL("https://cyberdrop.me/api")
 
-    def scrape_media(self, url: URL) -> MediaAlbum | MediaFile:
+    def get_media(self, url: URL) -> MediaAlbum | MediaFile:
         return self._parse_media(url)
 
     def _parse_media(self, url: URL) -> MediaAlbum | MediaFile:
