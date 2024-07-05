@@ -19,7 +19,7 @@ HOST_MAPPING = {
 
 def get_crawler(url: URL, http_client: Requester) -> Crawler:
     crawler = _choice_crawler(url)
-    return crawler(url.origin(), http_client)
+    return crawler(http_client)
 
 
 def _choice_crawler(url: URL) -> type[Crawler]:

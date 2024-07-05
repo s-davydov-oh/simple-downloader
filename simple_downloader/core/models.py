@@ -72,11 +72,9 @@ class DownloadCounter:
         self.successes += 1
 
 
-# if u use @dataclass, there will be an "unexpected argument" when init the object
+@dataclass(frozen=True, slots=True)
 class Crawler(ABC):
-    def __init__(self, base_url: URL, http_client: "Requester") -> None:
-        self.base_url = base_url
-        self.http_client = http_client
+    http_client: "Requester"
 
     @abstractmethod
     def scrape_media(self, url: URL) -> MediaAlbum | MediaFile: ...

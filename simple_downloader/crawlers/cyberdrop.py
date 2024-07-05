@@ -16,7 +16,7 @@ class Cyberdrop(Crawler):
                 return MediaAlbum(
                     title=parse_title(soup),
                     url=url,
-                    file_urls=parse_file_urls(soup, "#table .image", self.base_url),
+                    file_urls=parse_file_urls(soup, "#table .image", url.origin()),
                 )
             case "f":
                 api = self.BASE_API.joinpath(url.path[1:])
