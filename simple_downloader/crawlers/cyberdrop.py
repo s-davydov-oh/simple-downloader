@@ -5,9 +5,10 @@ from simple_downloader.core.models import Crawler, MediaAlbum, MediaFile
 from simple_downloader.core.parsing import get_soup, parse_file_urls, parse_filename, parse_title
 
 
-class Cyberdrop(Crawler):
-    BASE_API = URL("https://cyberdrop.me/api")
+BASE_API = URL("https://cyberdrop.me/api")
 
+
+class Cyberdrop(Crawler):
     def get_media(self, url: URL) -> MediaAlbum | MediaFile:
         return self._parse_media(url)
 
@@ -30,7 +31,7 @@ class Cyberdrop(Crawler):
         )
 
     def _parse_file(self, url: URL) -> MediaFile:
-        api = self.BASE_API.joinpath(url.path[1:])  # [1] is "/"
+        api = BASE_API.joinpath(url.path[1:])  # [1] is "/"
         json = self.http_client.get_response(api).json()
         return MediaFile(
             title=json["name"],
