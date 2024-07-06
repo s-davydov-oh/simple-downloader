@@ -31,7 +31,7 @@ def get_updated_parent_path(parent_path: Path, parent_name: str = DEFAULT_ALBUM_
         updated_parent_path.mkdir(exist_ok=True, parents=True)
     except IOError as e:
         logger.debug(e)
-        updated_parent_path = get_updated_parent_path(parent_path)
+        return get_updated_parent_path(parent_path)
 
     logger.debug('Updated path to the saved files will be "%s"', updated_parent_path)
     return updated_parent_path
