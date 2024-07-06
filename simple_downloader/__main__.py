@@ -26,6 +26,7 @@ from simple_downloader.config import (
 from simple_downloader.core.exceptions import (
     CrawlerNotFound,
     DeviceSpaceRunOutError,
+    DownloadError,
     EmptyContentTypeError,
     ExtensionNotFoundError,
     ExtensionNotSupported,
@@ -56,6 +57,16 @@ def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
         try:
             return func(*args, **kwargs)
 
+        except ExtensionNotFoundError as e:
+            logger.info(e)
+            print_info(f'{FAILURE} File "{e.title}" has no extension: {url}')
+        except ExtensionNotSupported as e:
+            logger.info(e)
+            print_info(f'{FAILURE} File extension "{e.extension}" is not supported: {url}')
+        except FileOpenError as e:
+            logger.info(e)
+            print_info(f"{FAILURE} Filename has forbidden chars: {url}")
+
         except HTTPError as e:
             logger.info(e)
             code = e.response.status_code
@@ -73,19 +84,9 @@ def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
         except (ConnectionError, EmptyContentTypeError) as e:
             logger.info(e)
             print_info(f"{FAILURE} Unknown Server Error: {url}")
-        except RequestException as e:
+        except (RequestException, DownloadError) as e:
             logger.warning(e, exc_info=True)
             print_info(f"{FAILURE} Download Error: {url}")
-
-        except ExtensionNotFoundError as e:
-            logger.info(e)
-            print_info(f'{FAILURE} File "{e.title}" has no extension: {url}')
-        except ExtensionNotSupported as e:
-            logger.info(e)
-            print_info(f'{FAILURE} File extension "{e.extension}" is not supported: {url}')
-        except FileOpenError as e:
-            logger.info(e)
-            print_info(f"{FAILURE} Filename has forbidden chars: {url}")
 
     return wrapper
 
