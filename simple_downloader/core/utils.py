@@ -67,16 +67,15 @@ def sanitize(name: str, separator: str = "_") -> str:
     return name.rstrip(".").strip()
 
 
-def decode_cloudflare_email_protection(encoded_data: str) -> str:
+def decode_cloudflare_email_protection(encode_str: str) -> str:
     """
     The algorithm for decoding email protection provided by CloudFlare.
 
     Source https://usamaejaz.com/cloudflare-email-decoding.
     """
 
-    mask = int(encoded_data[:2], 16)
-    chars = [chr(int(encoded_data[i : i + 2], 16) ^ mask) for i in range(2, len(encoded_data), 2)]
-    return "".join(chars)
+    mask = int(encode_str[:2], 16)
+    return "".join(chr(int(encode_str[i : i + 2], 16) ^ mask) for i in range(2, len(encode_str), 2))
 
 
 def get_http_status_phrase(status_code: int) -> str:
