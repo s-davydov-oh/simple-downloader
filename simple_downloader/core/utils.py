@@ -24,8 +24,8 @@ def print_info(message: str, is_error: bool = True, disable: bool = DISABLE_CLI_
 def get_updated_parent_path(parent_path: Path, parent_name: str = DEFAULT_ALBUM_NAME) -> Path:
     """Updates the parent path and removes any invalid characters from the name."""
 
-    correct_parent_name = sanitize(parent_name)
-    updated_parent_path = parent_path.joinpath(correct_parent_name)
+    valid_parent_path = sanitize(parent_name)
+    updated_parent_path = parent_path.joinpath(valid_parent_path)
 
     try:
         updated_parent_path.mkdir(exist_ok=True, parents=True)
@@ -63,8 +63,8 @@ def get_url_from_args(arguments: tuple) -> URL | str:
 def sanitize(name: str, separator: str = "_") -> str:
     """Removes illegal characters from the directory and filenames."""
 
-    name = "".join(separator if char in ILLEGAL_CHARS else char for char in name)
-    return name.rstrip(".").strip()
+    valid_name = "".join(separator if char in ILLEGAL_CHARS else char for char in name)
+    return valid_name.rstrip(".").strip()
 
 
 def decode_cloudflare_email_protection(encode_str: str) -> str:
