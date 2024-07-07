@@ -1,5 +1,4 @@
 from logging import getLogger
-from re import compile
 
 from yarl import URL
 
@@ -11,17 +10,27 @@ from simple_downloader.handlers.requester import Requester
 
 logger = getLogger(__name__)
 
-HOST_MAPPING = {
-    compile(r"cyberdrop"): crawlers.Cyberdrop,
-    compile(r"bunkr"): crawlers.Bunkr,
+MAPPING = {
+    "cyberdrop": crawlers.Cyberdrop,
+    "bunkr": crawlers.Bunkr,
 }
 
 
 def get_crawler(url: URL, http_client: Requester) -> Crawler:
-    if url.host is not None:
-        for host_pattern, crawler in HOST_MAPPING.items():
-            if host_pattern.search(url.host):
-                logger.debug("Received <%s> crawler for %s", crawler.__module__, url)
-                return crawler(http_client)
+    crawler = _choice_crawler(url)
+    if crawler is None:
+        raise CrawlerNotFound(url)
 
-    raise CrawlerNotFound(url)
+    logger.debug("Received <%s> crawler for %s", crawler.__module__, url)
+    return crawler(http_client)
+
+
+def _choice_crawler(url: URL) -> type[Crawler] | None:
+    if url.host is None:
+        return None
+
+    key = next((key for key in MAPPING.keys() if key in url.host), None)
+    if key is None:
+        return None
+
+    return MAPPING[key]
