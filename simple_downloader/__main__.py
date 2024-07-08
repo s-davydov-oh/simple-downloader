@@ -127,7 +127,8 @@ def download(
 )
 def main(url: URL, save_path: Path) -> None:
     logger.info("Start task %s", url)
-    print_info(f"Task {url}\n" f'Path "{save_path}"', is_error=False)
+    print_info(f"Task... {url}", is_error=False)
+    print_info(f'Path to the saved files is "{save_path}"', is_error=False)
 
     counter = DownloadCounter()
 
