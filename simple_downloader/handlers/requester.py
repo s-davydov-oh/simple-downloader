@@ -80,7 +80,7 @@ class Requester:
                     apply_delay(sleep_time_until_retry)
 
                 error_message = str(e)
-                raise CustomHTTPError(error_message, **e.__dict__)
+                raise CustomHTTPError(error_message, **e.__dict__)  # unpacking for the parent class
             raise
 
         if not response.headers.get("content-type"):
