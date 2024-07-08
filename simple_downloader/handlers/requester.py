@@ -33,7 +33,7 @@ class Requester:
         self,
         headers: dict | None = None,
         delay: float | tuple[float, float] | None = DELAY,
-        timeout: tuple[float, float] = TIMEOUT,
+        timeout: float | tuple[float, float] | None = TIMEOUT,
         max_redirects: int = MAX_REDIRECTS,
     ) -> None:
         self._session: Session = Session()

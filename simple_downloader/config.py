@@ -14,8 +14,8 @@ UNKNOWN = "[?]"
 BAR_FORMAT = f"{SUCCESS} " + "{desc} {percentage:3.0f}% [{bar:20}] {n_fmt}/{total_fmt} | {rate_fmt}"
 
 DELAY: float | tuple[float, float] | None = (1.1, 3.1)
+TIMEOUT: float | tuple[float, float] | None = (3.03, 42)  # connect and read timeout.
 MAX_REDIRECTS = 3
-TIMEOUT: tuple[float, float] = (3.03, 42)  # connect and read timeout.
 TOTAL_RETRIES = 5
 RETRY_STRATEGY = {"multiplier": 10, "min": 10, "max": 160}  # (2 ^ attempt - 1) * mult.
 
