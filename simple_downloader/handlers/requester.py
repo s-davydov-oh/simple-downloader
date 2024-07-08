@@ -10,9 +10,9 @@ from yarl import URL
 
 from simple_downloader.config import (
     DEFAULT_DELAY,
-    DEFAULT_TIMEOUT,
     MAX_REDIRECTS,
     RETRY_STRATEGY,
+    TIMEOUT,
     TOTAL_RETRIES,
 )
 from simple_downloader.core.exceptions import CustomHTTPError, EmptyContentTypeError
@@ -62,7 +62,7 @@ class Requester:
         before_sleep=log_retry,
     )
     def _make_request(self, method: Literal["get"], url: URL, **kwargs: Any) -> Response:
-        response = self._session.request(method, str(url), timeout=DEFAULT_TIMEOUT, **kwargs)
+        response = self._session.request(method, str(url), timeout=TIMEOUT, **kwargs)
         self._raise_http_exception(response)
         return response
 
