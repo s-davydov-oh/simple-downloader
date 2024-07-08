@@ -48,7 +48,7 @@ class Requester:
         self._session.headers.update(self.client_headers)
         logger.debug("Session parameters %s", self._session.headers)
 
-    def close(self) -> None:
+    def close_session(self) -> None:
         self._session.close()
         logger.debug("Session is closed".upper())
 
@@ -76,8 +76,8 @@ class Requester:
         except HTTPError as e:
             if e.response.status_code in RETRY_CODES:
                 if e.response.status_code == HTTPStatus.TOO_MANY_REQUESTS:
-                    sleep_to_next = int(e.response.headers.get("retry-after", 0))
-                    apply_delay(sleep_to_next)
+                    sleep_time_until_retry = int(e.response.headers.get("retry-after", 0))
+                    apply_delay(sleep_time_until_retry)
 
                 error_message = str(e)
                 raise CustomHTTPError(error_message, **e.__dict__)
@@ -97,4 +97,4 @@ class Requester:
         exc_tb: TracebackType | None,
     ) -> None:
         if self._session:
-            self.close()
+            self.close_session()
