@@ -101,7 +101,7 @@ def download(
 ) -> None:
     counter.add_attempt()
 
-    media = crawler.get_media(url)
+    media: MediaAlbum | MediaFile = crawler.get_media(url)
     match media:
         case MediaAlbum():
             save_path = get_updated_parent_path(save_path, media.title)
@@ -120,26 +120,26 @@ def download(
 @click.command()
 @click.argument("url", type=URL)
 @click.option(
-    "--path",  # if the "path" contains "\s", it must be framed with quotes
+    "--save_path",  # if the "path" contains "\s", it must be framed with quotes
     "-p",
     type=click.Path(exists=True, file_okay=False, path_type=Path),
     default=get_updated_parent_path(BASE_DIR, SAVE_FOLDER_NAME),
 )
-def main(url: URL, path: Path) -> None:
+def main(url: URL, save_path: Path) -> None:
     logger.info("Start task %s", url)
-    print_info(f"Task {url}\n" f'Path "{path}"', is_error=False)
+    print_info(f"Task {url}\n" f'Path "{save_path}"', is_error=False)
 
     counter = DownloadCounter()
 
     with requester.Requester() as http_client:
         try:
-            crawler: Crawler = factory.get_crawler(url, http_client)
+            crawler = factory.get_crawler(url, http_client)
         except CrawlerNotFound as e:
             logger.info(e)
             print_info(f"{FAILURE} Hosting is not supported: {e.url}")
         else:
             try:
-                download(url, path, crawler, http_client, counter)
+                download(url, save_path, crawler, http_client, counter)
             except DeviceSpaceRunOutError as e:
                 logger.warning(e)
                 print_info(f"{FAILURE} Save Error: Probably not enough free space")
