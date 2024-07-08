@@ -3,7 +3,7 @@ from logging import getLogger
 from pathlib import Path
 from random import uniform
 from time import sleep
-from sys import stderr
+import sys
 
 from yarl import URL
 
@@ -18,7 +18,7 @@ ILLEGAL_CHARS = '/<>:"\\|?*'  # https://en.wikipedia.org/wiki/Filename#Reserved_
 
 def print_info(message: str, is_error: bool = True, disable: bool = DISABLE_CLI_MESSAGES) -> None:
     if disable is False:
-        print(message, file=stderr) if is_error else print(message)
+        print(message, file=sys.stderr if is_error else sys.stdout)
 
 
 def get_updated_parent_path(parent_path: Path, parent_name: str = DEFAULT_ALBUM_NAME) -> Path:
