@@ -46,7 +46,7 @@ def download(
     file: MediaFile,
     save_path: Path,
     http_client: Requester,
-    chunk_size: int = BASE_CHUNK * DEFAULT_CHUNK_MULTIPLIER,
+    chunk_multiplier: int = DEFAULT_CHUNK_MULTIPLIER,
 ) -> None:
     stream = http_client.get_response(file.stream_url, stream=True)
     size = int(stream.headers.get("content-length", 0))
@@ -60,7 +60,7 @@ def download(
             raise FileOpenError(abs_save_path)
         else:
             with bf_out, tqdm(desc=file.title, total=size, **TQDM_PARAMS) as bar:
-                for chunk in stream.iter_content(chunk_size):
+                for chunk in stream.iter_content(BASE_CHUNK * chunk_multiplier):
                     try:
                         bf_out.write(chunk)
                     except OSError:
