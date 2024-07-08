@@ -8,7 +8,7 @@ from tqdm import tqdm
 from simple_downloader.config import (
     BAR_FORMAT,
     BASE_CHUNK,
-    CHUNK_MULTIPLIER,
+    DEFAULT_CHUNK_MULTIPLIER,
     DISABLE_CLI_MESSAGES,
     RETRY_STRATEGY,
     TOTAL_RETRIES,
@@ -46,7 +46,7 @@ def download(
     file: MediaFile,
     save_path: Path,
     http_client: Requester,
-    chunk_size: int = BASE_CHUNK * CHUNK_MULTIPLIER,
+    chunk_size: int = BASE_CHUNK * DEFAULT_CHUNK_MULTIPLIER,
 ) -> None:
     stream = http_client.get_response(file.stream_url, stream=True)
     size = int(stream.headers.get("content-length", 0))

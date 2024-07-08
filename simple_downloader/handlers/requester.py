@@ -8,7 +8,13 @@ from requests import ConnectionError, HTTPError, Response, Session, Timeout
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 from yarl import URL
 
-from simple_downloader.config import DELAY, MAX_REDIRECTS, RETRY_STRATEGY, TIMEOUT, TOTAL_RETRIES
+from simple_downloader.config import (
+    DEFAULT_DELAY,
+    DEFAULT_TIMEOUT,
+    MAX_REDIRECTS,
+    RETRY_STRATEGY,
+    TOTAL_RETRIES,
+)
 from simple_downloader.core.exceptions import CustomHTTPError, EmptyContentTypeError
 from simple_downloader.core.logs import log_request, log_retry
 from simple_downloader.core.utils import apply_delay
@@ -32,8 +38,8 @@ class Requester:
     def __init__(
         self,
         headers: dict | None = None,
-        delay: float | tuple[float, float] | None = DELAY,
-        timeout: float | tuple[float, float] | None = TIMEOUT,
+        delay: float | tuple[float, float] | None = DEFAULT_DELAY,
+        timeout: float | tuple[float, float] | None = DEFAULT_TIMEOUT,
         max_redirects: int = MAX_REDIRECTS,
     ) -> None:
         self._session: Session = Session()
