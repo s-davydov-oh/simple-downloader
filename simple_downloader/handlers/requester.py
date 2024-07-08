@@ -35,23 +35,14 @@ RETRY_CODES = frozenset(
 
 
 class Requester:
-    def __init__(
-        self,
-        headers: dict | None = None,
-        delay: float | tuple[float, float] | None = DEFAULT_DELAY,
-        timeout: float | tuple[float, float] | None = DEFAULT_TIMEOUT,
-        max_redirects: int = MAX_REDIRECTS,
-    ) -> None:
+    def __init__(self, delay: float | tuple[float, float] | None = DEFAULT_DELAY) -> None:
         self._session: Session = Session()
         logger.debug("Session is open".upper())
 
-        self.client_headers = {"user-agent": UserAgent().random} if headers is None else headers
         self.delay = delay
-        self.timeout = timeout
-        self.max_redirects = max_redirects
 
-        self._session.max_redirects = self.max_redirects
-        self._session.headers.update(self.client_headers)
+        self._session.max_redirects = MAX_REDIRECTS
+        self._session.headers.update({"user-agent": UserAgent().random})
         logger.debug("Session parameters %s", self._session.headers)
 
     def close_session(self) -> None:
@@ -71,7 +62,7 @@ class Requester:
         before_sleep=log_retry,
     )
     def _make_request(self, method: Literal["get"], url: URL, **kwargs: Any) -> Response:
-        response = self._session.request(method, str(url), timeout=self.timeout, **kwargs)
+        response = self._session.request(method, str(url), timeout=DEFAULT_TIMEOUT, **kwargs)
         self._raise_http_exception(response)
         return response
 
