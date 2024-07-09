@@ -50,6 +50,12 @@ logger = getLogger("simple_downloader")
 
 
 def error_handling_wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
+    """
+    Intercepts all major exceptions and logs them to a log file and the CLI.
+
+    Allows you to continue running the program even if there is a failed request.
+    """
+
     @wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> Any:
         url = get_url_from_args(args)
