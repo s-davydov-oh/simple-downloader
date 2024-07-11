@@ -10,9 +10,6 @@ BASE_API = URL("https://cyberdrop.me/api")
 
 class Cyberdrop(Crawler):
     def get_media(self, url: URL) -> MediaAlbum | MediaFile:
-        return self._parse_media(url)
-
-    def _parse_media(self, url: URL) -> MediaAlbum | MediaFile:
         media_type = url.parts[1]
         match media_type:
             case "a":
@@ -22,20 +19,20 @@ class Cyberdrop(Crawler):
             case _:
                 raise UndefinedMediaTypeError(url, media_type)
 
-    def _parse_album(self, url: URL) -> MediaAlbum:
-        soup = get_soup(self.http_client.get_response(url).text)
+    def _parse_album(self, album_url: URL) -> MediaAlbum:
+        soup = get_soup(self.http_client.get_response(album_url).text)
         return MediaAlbum(
             title=parse_title(soup),
-            url=url,
-            file_urls=parse_file_urls(soup, "#table .image", url.origin()),
+            url=album_url,
+            file_urls=parse_file_urls(soup, "#table .image", album_url.origin()),
         )
 
-    def _parse_file(self, url: URL) -> MediaFile:
-        api = BASE_API.joinpath(url.path[1:])  # [1] is "/"
-        json = self.http_client.get_response(api).json()
+    def _parse_file(self, file_url: URL) -> MediaFile:
+        api = BASE_API.joinpath(file_url.path[1:])  # [1] is "/"
+        file_info = self.http_client.get_response(api).json()
         return MediaFile(
-            title=json["name"],
-            filename=parse_filename(json["name"]),
-            url=url,
-            stream_url=json["url"],
+            title=file_info["name"],
+            filename=parse_filename(file_info["name"]),
+            url=file_url,
+            stream_url=file_info["url"],
         )

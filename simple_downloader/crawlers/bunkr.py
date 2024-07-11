@@ -30,19 +30,19 @@ class Bunkr(Crawler):
                 raise UndefinedMediaTypeError(url, media_type)
 
     @staticmethod
-    def _parse_album(url: URL, soup: BeautifulSoup) -> MediaAlbum:
+    def _parse_album(album_url: URL, soup: BeautifulSoup) -> MediaAlbum:
         return MediaAlbum(
             title=parse_title(soup),
-            url=url,
+            url=album_url,
             file_urls=parse_file_urls(soup, ".grid-images a"),
         )
 
-    def _parse_file(self, url: URL, soup: BeautifulSoup) -> MediaFile:
+    def _parse_file(self, file_url: URL, soup: BeautifulSoup) -> MediaFile:
         title = parse_title(soup)
         return MediaFile(
             title=title,
             filename=parse_filename(title),
-            url=url,
+            url=file_url,
             stream_url=self._parse_stream_url(soup),
         )
 
