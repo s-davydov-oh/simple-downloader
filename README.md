@@ -3,7 +3,8 @@
 ## Поддерживает
 
 - Bunkrr (bs4);
-- CyberDrop (bs4 + api).
+- CyberDrop (bs4 + api);
+- pixeldrain (api).
 
 Для расширения достаточно добавить краулер в соответствующий пакет и указать его в модуле
 factory.

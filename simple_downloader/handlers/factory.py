@@ -13,6 +13,7 @@ logger = getLogger(__name__)
 MAPPING = {
     "cyberdrop": crawlers.Cyberdrop,
     "bunkr": crawlers.Bunkr,
+    "pixeldrain": crawlers.Pixeldrain,
 }
 
 
