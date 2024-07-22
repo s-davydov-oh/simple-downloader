@@ -132,7 +132,7 @@ def download(
 def main(url: URL, save_path: Path) -> None:
     logger.info("Start task %s", url)
     click.echo(f"Task... {url}")
-    click.echo(f'Path to the saved files is "{save_path}"')
+    click.echo(f'Path to the saved files is "{save_path}".\n')
 
     counter = DownloadCounter()
 

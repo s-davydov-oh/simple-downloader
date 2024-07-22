@@ -3,8 +3,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DISABLE_CLI_MESSAGES: bool = False
-LEAVE_PROGRESS_BAR: bool = False
+LEAVE_PROGRESS_BAR: bool = True
 
 SAVE_FOLDER_NAME = "saves"
 SUCCESS = "[+]"
