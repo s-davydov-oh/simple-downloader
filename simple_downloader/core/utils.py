@@ -3,22 +3,16 @@ from logging import getLogger
 from pathlib import Path
 from random import uniform
 from time import sleep
-import sys
 
 from yarl import URL
 
-from simple_downloader.config import DEFAULT_ALBUM_NAME, DISABLE_CLI_MESSAGES
+from simple_downloader.config import DEFAULT_ALBUM_NAME
 from simple_downloader.core.models import MediaAlbum, MediaFile
 
 
 logger = getLogger(__name__)
 
 ILLEGAL_CHARS = '/<>:"\\|?*'  # https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
-
-
-def print_info(message: str, is_error: bool = True, disable: bool = DISABLE_CLI_MESSAGES) -> None:
-    if disable is False:
-        print(message, file=sys.stderr if is_error else sys.stdout)
 
 
 def get_updated_parent_path(parent_path: Path, parent_name: str = DEFAULT_ALBUM_NAME) -> Path:
